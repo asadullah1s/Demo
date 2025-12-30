@@ -1,0 +1,620 @@
+<html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoxAbility AI - Voice-First Professional Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4285F4;
+            --secondary: #34A853;
+            --accent: #EA4335;
+            --dark: #202124;
+            --light: #f8f9fa;
+            --gray: #5f6368;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon {
+            background: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #4285F4, #34A853);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: #bdc1c6;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .demo-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .code-section, .explanation-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(32, 33, 36, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .section-title i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .code-header h3 {
+            font-size: 1.2rem;
+        }
+        
+        .code-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+        }
+        
+        .btn-voice {
+            background: var(--secondary);
+        }
+        
+        .btn-voice:hover {
+            background: #2e8b57;
+        }
+        
+        pre {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 25px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            border: 1px solid #333;
+            margin-top: 10px;
+        }
+        
+        code {
+            color: #f8f8f2;
+        }
+        
+        .token-keyword { color: #ff79c6; }
+        .token-function { color: #50fa7b; }
+        .token-string { color: #f1fa8c; }
+        .token-comment { color: #6272a4; }
+        .token-number { color: #bd93f9; }
+        .token-operator { color: #ff79c6; }
+        .token-punctuation { color: #f8f8f2; }
+        .token-class-name { color: #8be9fd; }
+        
+        .explanation-text {
+            background: rgba(26, 26, 26, 0.7);
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 4px solid var(--secondary);
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+        
+        .voice-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(66, 133, 244, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .pulse {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 50px 0;
+        }
+        
+        .feature-card {
+            background: rgba(32, 33, 36, 0.8);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .gemini-section {
+            text-align: center;
+            padding: 40px;
+            background: rgba(26, 26, 26, 0.6);
+            border-radius: 15px;
+            margin: 40px 0;
+            border: 1px solid rgba(66, 133, 244, 0.3);
+        }
+        
+        .gemini-logo {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: #bdc1c6;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .demo-note {
+            background: rgba(234, 67, 53, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid var(--accent);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .demo-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-accessible-icon"></i>
+                </div>
+                <h1>VoxAbility AI</h1>
+            </div>
+            <p class="tagline">
+                A Voice-First Professional & Market Awareness Copilot for Blind Users.
+                Empowering blind professionals through voice-controlled, explainable AI.
+            </p>
+            
+            <div class="demo-note">
+                <i class="fas fa-exclamation-circle"></i> 
+                <strong>Demo Preview:</strong> This is a visual representation of VoxAbility AI. 
+                The actual product is voice-first and designed for screen reader accessibility.
+            </div>
+        </header>
+        
+        <div class="demo-container">
+            <section class="code-section">
+                <div class="section-title">
+                    <i class="fas fa-code"></i>
+                    <h2>Generated Code Example</h2>
+                </div>
+                
+                <div class="code-header">
+                    <h3>Python API Client (Generated via Voice Command)</h3>
+                    <div class="code-actions">
+                        <button class="btn btn-voice" onclick="speakCode()">
+                            <i class="fas fa-volume-up"></i> Hear Code
+                        </button>
+                        <button class="btn" onclick="copyCode()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <pre><code id="code-block">
+<span class="token-keyword">import</span> requests
+<span class="token-keyword">import</span> json
+<span class="token-keyword">from</span> datetime <span class="token-keyword">import</span> datetime
+
+<span class="token-keyword">class</span> <span class="token-class-name">WeatherAPIClient</span>:
+    <span class="token-comment">"""
+    A weather API client for fetching current weather data.
+    Generated by VoxAbility AI via voice command:
+    'Create a Python class to fetch weather data from OpenWeatherMap API'
+    """</span>
+    
+    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, api_key):
+        <span class="token-keyword">self</span>.base_url = <span class="token-string">"https://api.openweathermap.org/data/2.5/"</span>
+        <span class="token-keyword">self</span>.api_key = api_key
+    
+    <span class="token-keyword">def</span> <span class="token-function">get_current_weather</span>(<span class="token-keyword">self</span>, city, country_code=None):
+        <span class="token-comment">"""Fetch current weather for a given city"""</span>
+        location = city
+        <span class="token-keyword">if</span> country_code:
+            location += <span class="token-string">","</span> + country_code
+        
+        params = {
+            <span class="token-string">"q"</span>: location,
+            <span class="token-string">"appid"</span>: <span class="token-keyword">self</span>.api_key,
+            <span class="token-string">"units"</span>: <span class="token-string">"metric"</span>
+        }
+        
+        <span class="token-keyword">try</span>:
+            response = requests.get(
+                <span class="token-keyword">self</span>.base_url + <span class="token-string">"weather"</span>, 
+                params=params
+            )
+            response.raise_for_status()
+            
+            <span class="token-keyword">return</span> <span class="token-keyword">self</span>.<span class="token-function">_format_weather_data</span>(response.json())
+            
+        <span class="token-keyword">except</span> requests.exceptions.RequestException <span class="token-keyword">as</span> e:
+            <span class="token-keyword">return</span> {<span class="token-string">"error"</span>: <span class="token-string">f"API request failed: {str(e)}"</span>}
+    
+    <span class="token-keyword">def</span> <span class="token-function">_format_weather_data</span>(<span class="token-keyword">self</span>, data):
+        <span class="token-comment">"""Format raw API response into user-friendly structure"""</span>
+        <span class="token-keyword">return</span> {
+            <span class="token-string">"location"</span>: data[<span class="token-string">"name"</span>],
+            <span class="token-string">"temperature"</span>: data[<span class="token-string">"main"</span>][<span class="token-string">"temp"</span>],
+            <span class="token-string">"feels_like"</span>: data[<span class="token-string">"main"</span>][<span class="token-string">"feels_like"</span>],
+            <span class="token-string">"humidity"</span>: data[<span class="token-string">"main"</span>][<span class="token-string">"humidity"</span>],
+            <span class="token-string">"description"</span>: data[<span class="token-string">"weather"</span>][<span class="token-number">0</span>][<span class="token-string">"description"</span>],
+            <span class="token-string">"wind_speed"</span>: data[<span class="token-string">"wind"</span>][<span class="token-string">"speed"</span>],
+            <span class="token-string">"timestamp"</span>: datetime.now().strftime(<span class="token-string">"%Y-%m-%d %H:%M:%S"</span>)
+        }
+    
+    <span class="token-keyword">def</span> <span class="token-function">get_weather_alert</span>(<span class="token-keyword">self</span>, city):
+        <span class="token-comment">"""Check for severe weather conditions"""</span>
+        weather = <span class="token-keyword">self</span>.get_current_weather(city)
+        
+        <span class="token-keyword">if</span> <span class="token-string">"error"</span> <span class="token-keyword">not</span> <span class="token-keyword">in</span> weather:
+            alerts = []
+            
+            <span class="token-keyword">if</span> weather[<span class="token-string">"wind_speed"</span>] &gt; <span class="token-number">20</span>:
+                alerts.append(<span class="token-string">"High wind warning"</span>)
+            
+            <span class="token-keyword">if</span> weather[<span class="token-string">"temperature"</span>] &lt; <span class="token-number">0</span>:
+                alerts.append(<span class="token-string">"Freezing temperature alert"</span>)
+            
+            <span class="token-keyword">return</span> {
+                <span class="token-string">"weather"</span>: weather,
+                <span class="token-string">"alerts"</span>: alerts
+            }
+        
+        <span class="token-keyword">return</span> weather
+
+<span class="token-comment"># Example usage (explained via voice)</span>
+<span class="token-comment"># client = WeatherAPIClient("your_api_key_here")</span>
+<span class="token-comment"># weather = client.get_current_weather("London", "UK")</span>
+<span class="token-comment"># print(f"Current temperature: {weather['temperature']}°C")</span>
+</code></pre>
+                
+                <div class="voice-indicator">
+                    <div class="pulse"></div>
+                    <div>
+                        <strong>Voice Command Used:</strong>
+                        <em>"Create a Python class to fetch weather data from OpenWeatherMap API with error handling and alerts"</em>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="explanation-section">
+                <div class="section-title">
+                    <i class="fas fa-volume-up"></i>
+                    <h2>Voice Narration & Explanation</h2>
+                </div>
+                
+                <div class="explanation-text">
+                    <p><strong>VoxAbility AI Voice Explanation:</strong></p>
+                    
+                    <p>"I've created a Python class called WeatherAPIClient that fetches weather data from the OpenWeatherMap API. Let me explain what I've built:</p>
+                    
+                    <p>First, I imported the necessary modules: requests for API calls, json for data handling, and datetime for timestamps.</p>
+                    
+                    <p>The class has an initialization method that sets up the API base URL and stores your API key securely.</p>
+                    
+                    <p>The main method, get_current_weather, takes a city name and optional country code. It constructs the API request with proper parameters including units set to metric for Celsius temperatures.</p>
+                    
+                    <p>I've added comprehensive error handling using try-except blocks to catch network issues or API errors, returning a clear error message if something goes wrong.</p>
+                    
+                    <p>The _format_weather_data method processes the raw API response into a clean, structured dictionary with only the essential information: location, temperature, feels-like temperature, humidity, weather description, wind speed, and a timestamp.</p>
+                    
+                    <p>Additionally, I included a get_weather_alert method that checks for severe conditions - specifically high winds over 20 meters per second and freezing temperatures below 0°C.</p>
+                    
+                    <p>Would you like me to explain any part in more detail, or should I proceed to create unit tests for this class?"</p>
+                </div>
+                
+                <div style="margin-top: 25px; display: flex; gap: 15px;">
+                    <button class="btn" onclick="simulateVoiceResponse()">
+                        <i class="fas fa-play"></i> Play Voice Explanation
+                    </button>
+                    <button class="btn btn-voice" style="background: var(--accent);">
+                        <i class="fas fa-microphone"></i> Ask Follow-up Question
+                    </button>
+                </div>
+                
+                <div class="demo-note" style="margin-top: 25px;">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>How This Works for Blind Users:</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>User speaks a command in natural language</li>
+                        <li>VoxAbility AI explains what it will do before execution</li>
+                        <li>User confirms with voice command ("yes, proceed")</li>
+                        <li>AI generates code while narrating each section</li>
+                        <li>User can ask questions about any part of the code</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        
+        <section class="gemini-section">
+            <div class="gemini-logo">
+                <i class="fab fa-google"></i>
+            </div>
+            <h2>Powered by Gemini 3 API</h2>
+            <p style="max-width: 800px; margin: 20px auto; line-height: 1.6;">
+                This project leverages <strong>Gemini 3's advanced reasoning, long-context memory, and agent-like capabilities</strong> to understand complex voice commands, generate production-ready code with explanations, and maintain conversational context throughout development sessions.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px;">
+                <div class="feature-card" style="background: rgba(66, 133, 244, 0.1);">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Advanced Reasoning</h3>
+                    <p>Understands complex requirements and architectural decisions</p>
+                </div>
+                <div class="feature-card" style="background: rgba(52, 168, 83, 0.1);">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Conversational AI</h3>
+                    <p>Explains technical concepts in accessible, plain language</p>
+                </div>
+                <div class="feature-card" style="background: rgba(234, 67, 53, 0.1);">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Safety First</h3>
+                    <p>Built-in confirmations and educational-only market insights</p>
+                </div>
+            </div>
+        </section>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-blind"></i>
+                </div>
+                <h3>Voice-First Design</h3>
+                <p>Entirely operable through voice commands with no screen dependency</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <h3>Freelancing Assistant</h3>
+                <p>Code generation, debugging, documentation, and client communication</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Market Awareness</h3>
+                <p>Educational market insights (no trading advice or execution)</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h3>Human-in-Control</h3>
+                <p>Every action requires explicit user confirmation</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>VoxAbility AI &copy; 2024 | Built for the Gemini API Hackathon</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #9aa0a6;">
+                This demo visually represents a voice-first application designed for blind professionals.
+                The actual implementation uses Gemini 3 API for natural language understanding and code generation.
+            </p>
+            <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
+                <a href="#" style="color: #bdc1c6; text-decoration: none;">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="#" style="color: #bdc1c6; text-decoration: none;">
+                    <i class="fas fa-file-alt"></i> Documentation
+                </a>
+                <a href="#" style="color: #bdc1c6; text-decoration: none;">
+                    <i class="fas fa-video"></i> Demo Video
+                </a>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        function speakCode() {
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = "Here's the Python code I generated. This is a weather API client class with methods for fetching current weather data, formatting responses, and checking for weather alerts. Would you like me to explain any specific part?";
+            speech.rate = 0.9;
+            speech.pitch = 1;
+            speech.volume = 1;
+            window.speechSynthesis.speak(speech);
+            
+            // Visual feedback
+            const btn = document.querySelector('.btn-voice');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-volume-up"></i> Speaking...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        }
+        
+        function copyCode() {
+            const codeText = document.getElementById('code-block').innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const btn = document.querySelector('.btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+        
+        function simulateVoiceResponse() {
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = "I've created a Python class called Weather API Client that fetches weather data from the Open Weather Map API. Let me explain what I've built. First, I imported the necessary modules. The class has an initialization method that sets up the API base URL and stores your API key securely. The main method, get current weather, takes a city name and optional country code. I've added comprehensive error handling to catch network issues. The method processes the raw API response into a clean, structured dictionary. Additionally, I included a get weather alert method that checks for severe conditions. Would you like me to explain any part in more detail?";
+            speech.rate = 0.85;
+            speech.pitch = 1;
+            speech.volume = 1;
+            window.speechSynthesis.speak(speech);
+            
+            // Visual feedback
+            const btn = document.querySelectorAll('.btn')[1];
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-play"></i> Speaking...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 15000);
+        }
+        
+        // Add some interactivity to the feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+        
+        // Initialize with a welcome message
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('VoxAbility AI Demo Loaded');
+                console.log('This demo showcases how blind developers can work with code through voice commands.');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
