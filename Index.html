@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <!-- Font Awesome 6 (icons) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- style.css embedded -->
   <style>
     /* ----- GLOBAL CINEMATIC STYLES ----- */
     * {
@@ -25,11 +24,12 @@
       overflow-x: hidden;
       position: relative;
       transition: background 0.8s ease;
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
     }
     h1, h2, h3, .romantic-font {
       font-family: 'Playfair Display', serif;
     }
-    /* fullpage scenes */
     .scene {
       min-height: 100vh;
       height: 100vh;
@@ -42,32 +42,6 @@
       padding: 2rem 1rem;
       transition: background-color 1s, box-shadow 0.5s;
       scroll-snap-align: start;
-    }
-    /* snap scroll optional (cinematic) */
-    body {
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-    }
-    /* ----- LOADING SCREEN ----- */
-    .loading-screen {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: #0a0a1a;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 1.5s, visibility 1.5s;
-      flex-direction: column;
-    }
-    .loader-heart {
-      font-size: 4rem;
-      color: #ff7b9c;
-      animation: heartbeat 1.2s infinite;
-    }
-    @keyframes heartbeat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.3); color: #ff4d6d; }
     }
     /* ----- PROGRESS BAR ----- */
     .progress-container {
@@ -124,10 +98,8 @@
       background: rgba(255, 123, 156, 0.2);
       border: 1px solid #ff7b9c;
     }
-    /* ----- SCENE COMMON ANIMATIONS ----- */
-    .fade-in {
-      animation: fadeIn 1.8s ease forwards;
-    }
+    /* ----- ANIMATIONS ----- */
+    .fade-in { animation: fadeIn 1.8s ease forwards; }
     @keyframes fadeIn { 0%{ opacity: 0; } 100%{ opacity: 1; } }
     .slide-left { animation: slideLeft 1s ease; }
     @keyframes slideLeft { 0%{ transform: translateX(80px); opacity: 0; } 100%{ transform: translateX(0); opacity: 1; } }
@@ -135,35 +107,64 @@
     @keyframes slideRight { 0%{ transform: translateX(-80px); opacity: 0; } 100%{ transform: translateX(0); opacity: 1; } }
     .zoom-in { animation: zoomIn 1.2s ease; }
     @keyframes zoomIn { 0%{ transform: scale(0.8); opacity: 0; } 100%{ transform: scale(1); opacity: 1; } }
-    .typewriter {
-      overflow: hidden;
-      white-space: nowrap;
-      border-right: 2px solid #ffb3c6;
-      animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    
+    /* Hug animation: characters come from sides and meet */
+    .hug-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
     }
-    @keyframes typing { from { width: 0 } to { width: 100% } }
-    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #ffb3c6 } }
-
-    /* ----- FLOATING PARTICLES / RAIN / LEAVES ----- */
-    .particle-bg {
-      position: absolute;
-      width: 100%; height: 100%;
-      top:0; left:0;
-      pointer-events: none;
-      overflow: hidden;
+    .character-left {
+      animation: comeRight 1.2s ease-out forwards;
     }
-    .particle {
-      position: absolute;
-      width: 6px; height: 6px;
-      background: rgba(255, 200, 220, 0.4);
-      border-radius: 50%;
-      animation: float 15s infinite linear;
+    .character-right {
+      animation: comeLeft 1.2s ease-out forwards;
     }
-    @keyframes float {
-      0% { transform: translateY(100vh) scale(0.8); opacity: 1; }
-      100% { transform: translateY(-20vh) scale(0.2); opacity: 0; }
+    @keyframes comeRight {
+      0% { transform: translateX(-200px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
     }
-    /* rain overlay */
+    @keyframes comeLeft {
+      0% { transform: translateX(200px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+    .hug-heart {
+      font-size: 3rem;
+      color: #ff4d6d;
+      animation: heartbeat 1s infinite;
+      margin: 0 5px;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+    /* chat bubbles */
+    .chat-bubble {
+      background: #2e3b4e;
+      padding: 12px 18px;
+      border-radius: 24px 24px 24px 4px;
+      margin: 10px 0;
+      max-width: 80%;
+      color: white;
+    }
+    .chat-bubble.right {
+      background: #ff7b9c;
+      align-self: flex-end;
+      border-radius: 24px 24px 4px 24px;
+    }
+    .phone-mock {
+      background: #1e1e2f;
+      border-radius: 36px;
+      padding: 20px 15px;
+      box-shadow: 0 30px 50px rgba(0,0,0,0.7);
+      border: 1px solid #44475a;
+      max-width: 420px;
+      width: 100%;
+    }
+    /* rain & particles */
     .rain-overlay {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -180,7 +181,6 @@
       0% { transform: translateY(-20px); opacity: 0.6; }
       100% { transform: translateY(100vh); opacity: 0; }
     }
-    /* falling leaves */
     .leaf {
       position: absolute;
       color: #d4b08c;
@@ -192,7 +192,31 @@
       0% { transform: rotate(0deg) translateY(-10px); opacity: 0.8; }
       100% { transform: rotate(180deg) translateY(100vh); opacity: 0; }
     }
-    /* confetti canvas */
+    /* walking animation for separation scene */
+    .walk-away {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 40px;
+    }
+    .walk-left {
+      animation: walkLeft 4s infinite alternate ease-in-out;
+    }
+    @keyframes walkLeft {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50px); }
+    }
+    .stand-still {
+      animation: standStill 2s infinite;
+    }
+    @keyframes standStill {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+    .other-guy {
+      animation: walkLeft 3s infinite alternate ease-in-out;
+    }
     #confetti-canvas {
       position: absolute;
       top: 0; left: 0;
@@ -200,63 +224,6 @@
       pointer-events: none;
       z-index: 100;
     }
-    /* phone mockup */
-    .phone-mock {
-      background: #1e1e2f;
-      border-radius: 36px;
-      padding: 20px 15px;
-      box-shadow: 0 30px 50px rgba(0,0,0,0.7);
-      border: 1px solid #44475a;
-      max-width: 360px;
-      width: 100%;
-    }
-    .chat-bubble {
-      background: #2e3b4e;
-      padding: 12px 18px;
-      border-radius: 24px 24px 24px 4px;
-      margin: 10px 0;
-      max-width: 80%;
-      color: white;
-    }
-    .chat-bubble.right {
-      background: #ff7b9c;
-      align-self: flex-end;
-      border-radius: 24px 24px 4px 24px;
-    }
-    .heart-symbol {
-      color: #ff4d6d;
-      font-size: 24px;
-      animation: heartbeat 1.2s infinite;
-    }
-    /* heart break */
-    .heart-broken {
-      color: #6b2d3b;
-      font-size: 50px;
-      position: relative;
-      animation: breakHeart 0.8s forwards;
-    }
-    @keyframes breakHeart {
-      0% { transform: scale(1); color: #ff4d6d; }
-      50% { transform: scale(1.2) rotate(10deg); }
-      100% { transform: scale(0.6) rotate(-20deg); color: #4a2c2c; opacity: 0.6; }
-    }
-    /* thunder */
-    .thunder-flash {
-      animation: thunderFlash 0.2s infinite;
-    }
-    @keyframes thunderFlash {
-      0% { background-color: rgba(255,255,200,0.2); }
-      100% { background-color: rgba(30,30,80,0.7); }
-    }
-    /* glow */
-    .glow-effect {
-      animation: softGlow 3s infinite alternate;
-    }
-    @keyframes softGlow {
-      from { text-shadow: 0 0 10px #ffb3c6, 0 0 20px #ff9eb5; }
-      to { text-shadow: 0 0 20px #ff7b9c, 0 0 40px #ff4d6d; }
-    }
-    /* responsive */
     @media (max-width: 768px) {
       .scene { padding: 1rem; }
       .phone-mock { max-width: 300px; }
@@ -265,95 +232,99 @@
 </head>
 <body>
 
-  <!-- LOADING SCREEN ANIMATION -->
-  <div id="loadingScreen" class="loading-screen">
-    <div class="loader-heart"><i class="fas fa-heart"></i></div>
-    <h3 class="mt-4 romantic-font" style="color:#ffe6f0;">Asad & Sania</h3>
-    <p style="color:#b3c7ff;">loading their story...</p>
-  </div>
-
-  <!-- PROGRESS BAR (bonus) -->
+  <!-- PROGRESS BAR -->
   <div class="progress-container">
     <div id="progressBar" class="progress-bar-fill"></div>
   </div>
 
-  <!-- BACKGROUND MUSIC: Afsos – Anuv Jain ft. AP Dhillon (autoplay, muted, online source) -->
+  <!-- BACKGROUND MUSIC: afsoos.mp3 (autoplay muted) -->
   <audio id="bgAudio" loop autoplay muted preload="auto" style="display:none;">
-    <!-- Using a reliable, royalty-free online source. For the real song, replace this src with a direct link to "Afsos". -->
-    <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Chad_Crouch/Arps/Chad_Crouch_-_Shipping_Lanes.mp3" type="audio/mpeg">
+    <source src="afsoos.mp3" type="audio/mpeg">
     Your browser does not support audio.
   </audio>
 
-  <!-- MAIN STORY SECTIONS (8 SCENES) -->
+  <!-- ========== 8 CINEMATIC SCENES ========== -->
   <div class="container-fluid px-0">
-    <!-- SCENE 1 – Social Media Meeting -->
+
+    <!-- SCENE 1 – STARTING BANNER: HUG + SOCIAL MESSAGES (replaces loading screen) -->
     <section id="scene1" class="scene" style="background: radial-gradient(circle at 20% 50%, #1a1e30, #0b0c14);">
       <div class="particle-bg" id="particleScene1"></div>
       <div class="row w-100 justify-content-center">
-        <div class="col-md-6 col-lg-5 text-center">
-          <div class="phone-mock fade-in">
+        <div class="col-md-8 col-lg-6 text-center">
+          <!-- Two characters coming from left & right, hug -->
+          <div class="hug-container">
+            <i class="fas fa-user fa-5x character-left" style="color:#ffb3c6;"></i>
+            <span class="hug-heart"><i class="fas fa-heart"></i></span>
+            <i class="fas fa-user fa-5x character-right" style="color:#c1a5d3;"></i>
+          </div>
+          <!-- Social media chat messages (exact dialog) -->
+          <div class="phone-mock fade-in mt-4">
             <div class="d-flex flex-column">
-              <div class="chat-bubble slide-left">Sania: Hi, I saw your post.</div>
-              <div class="chat-bubble right slide-right">Asad: Oh really? Nice to meet you 😊</div>
-              <div class="chat-bubble slide-left typing-effect" id="typingDemo">Sania: Your art is beautiful ✨</div>
+              <div class="chat-bubble slide-left">Sania: hello ap Romeo</div>
+              <div class="chat-bubble right slide-right">Asad: Han 😂 😂</div>
+              <div class="chat-bubble slide-left">Sania: ya Roz confession ap per lag rhy h ku sad h</div>
+              <div class="chat-bubble right slide-right">Asad: Han yar tang ho gya Hu ab choke my Beth k dant nikalu to iny yaqeen ho ga ni sad</div>
             </div>
           </div>
-          <p class="mt-4 romantic-font" style="color:#ffe0f0;">♡ first message ♡</p>
+          <p class="mt-4 romantic-font" style="color:#ffe0f0;">♡ first hug & chat ♡</p>
         </div>
       </div>
       <div style="position: absolute; bottom: 20px; color: rgba(255,255,255,0.5);">Scene 1 · Meeting</div>
     </section>
 
-    <!-- SCENE 2 – Academy Days -->
+    <!-- SCENE 2 – ACADEMY DAYS: Sania convinces Asad to do DIT, they study together -->
     <section id="scene2" class="scene" style="background: linear-gradient(145deg, #ffe6f0, #ffd9e8);">
       <div class="container">
         <div class="row align-items-center justify-content-center">
           <div class="col-md-5 text-center">
             <i class="fas fa-user-graduate fa-3x" style="color:#a64d79;"></i>
             <h3 class="romantic-font mt-3" style="color:#732c4c;">Asad</h3>
-            <div class="heart-symbol mt-2"><i class="fas fa-heart"></i></div>
           </div>
           <div class="col-md-5 text-center">
             <i class="fas fa-user-graduate fa-3x" style="color:#5c4d7a;"></i>
             <h3 class="romantic-font mt-3" style="color:#3d2b4e;">Sania</h3>
           </div>
         </div>
-        <div class="row mt-5">
+        <div class="row mt-4">
           <div class="col-12 text-center">
-            <p style="color:#442233; font-size:1.4rem;" class="zoom-in"><i class="fas fa-book-open"></i> studying side by side</p>
-            <div class="floating-hearts"></div>
+            <p style="color:#5e3a4c; font-size:1.5rem;" class="zoom-in">
+              <i class="fas fa-comment-dots"></i> “Sania convinced Asad to join DIT with her”
+            </p>
+            <p style="color:#6d4c5c; font-size:1.2rem;">They started studying together every day.</p>
+            <div class="heart-symbol mt-3" style="font-size:2rem; color:#ff99aa;"><i class="fas fa-heart"></i></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SCENE 3 – One-Sided Love / Heartbreak -->
+    <!-- SCENE 3 – ONE-SIDED LOVE: Asad loves Sania, she sees him only as friend, fights about male friends -->
     <section id="scene3" class="scene" style="background: #2c1e2e;">
       <div class="rain-overlay" id="rainScene3"></div>
       <div class="container">
-        <div class="row g-0 split-view">
-          <div class="col-6 text-center border-end" style="border-color: #795b6a!important;">
-            <i class="fas fa-user fa-4x" style="color:#dbb0c2;"></i>
-            <h4 style="color:#ebc7d5;">Asad</h4>
-            <div id="heartBreakIcon"><i class="fas fa-heart fa-3x" style="color:#ff6b7c;"></i></div>
-            <p class="mt-3" style="color:#f2d7e0;">“thinking of her...”</p>
-          </div>
-          <div class="col-6 text-center">
-            <i class="fas fa-user fa-4x" style="color:#b09bc0;"></i>
-            <h4 style="color:#d9c2e0;">Sania</h4>
-            <i class="fas fa-mobile-alt fa-3x" style="color:#a191b2;"></i>
-            <p style="color:#d3c0cd;">...ignoring</p>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-12 text-center fade-in">
-            <span style="font-size:2rem; color:#b78c9c;">💔</span>
+        <div class="row">
+          <div class="col-12 text-center">
+            <i class="fas fa-heart fa-3x" style="color:#ff6b7c;"></i>
+            <h2 class="romantic-font mt-3" style="color:#f2b8c6;">Asad fell one-sided love</h2>
+            <p style="color:#d3a5b2;">Sania just considers him a friend.</p>
+            <div class="row mt-5">
+              <div class="col-6">
+                <i class="fas fa-users fa-3x" style="color:#b58b9a;"></i>
+                <p style="color:#e8ced6;">Male friends & classmates</p>
+              </div>
+              <div class="col-6">
+                <i class="fas fa-fist-raised fa-3x" style="color:#b56576;"></i>
+                <p style="color:#e8ced6;">Fights start because of jealousy</p>
+              </div>
+            </div>
+            <div class="mt-4">
+              <span style="font-size:2rem; color:#b78c9c;">💔</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SCENE 4 – Depression Phase -->
+    <!-- SCENE 4 – DEPRESSION PHASE (unchanged, keeps the mood) -->
     <section id="scene4" class="scene" style="background: #121524;">
       <div class="rain-overlay" id="rainScene4"></div>
       <div class="thunder-flash" style="position:absolute; width:100%; height:100%; opacity:0.1;"></div>
@@ -367,39 +338,44 @@
       </div>
     </section>
 
-    <!-- SCENE 5 – University Life (3 Years Later) -->
+    <!-- SCENE 5 – UNIVERSITY LIFE (3 Years together, different departments, meet daily, Asad loves her madly) -->
     <section id="scene5" class="scene" style="background: linear-gradient(#3e5c6f, #24424b);">
       <div class="container text-center">
-        <div class="campus-bg"></div>
-        <h1 id="yearTimeline" class="display-3 romantic-font" style="color:#ffeabf;">3 Years Later...</h1>
+        <h1 id="yearTimeline" class="display-3 romantic-font" style="color:#ffeabf;">3 Years Together</h1>
         <div class="row mt-5 justify-content-center">
-          <div class="col-3"><i class="fas fa-university fa-3x"></i></div>
-          <div class="col-3"><i class="fas fa-walking fa-3x"></i></div>
-          <div class="col-3"><i class="fas fa-book fa-3x"></i></div>
+          <div class="col-4"><i class="fas fa-university fa-3x"></i><p>Same University</p></div>
+          <div class="col-4"><i class="fas fa-code-branch fa-3x"></i><p>Different Departments</p></div>
+          <div class="col-4"><i class="fas fa-calendar-alt fa-3x"></i><p>Meet daily</p></div>
         </div>
-        <p class="mt-5" style="color:#fbeaff;">same campus · distant hearts</p>
+        <p class="mt-4" style="color:#ffdab9; font-size:1.5rem;">Asad loves her madly, silently.</p>
+        <div class="heart-symbol mt-3"><i class="fas fa-heart" style="color:#ff8c9a;"></i></div>
       </div>
     </section>
 
-    <!-- SCENE 6 – Separation -->
+    <!-- SCENE 6 – SEPARATION: She left Asad for his friend/class fellow. Animation: girl walking left, other guy, Asad watches sadly -->
     <section id="scene6" class="scene" style="background: #2e2e3a;">
       <div id="leavesContainer" style="position:absolute; width:100%; height:100%;"></div>
-      <div class="container text-center" style="backdrop-filter: blur(4px);">
-        <div class="row">
-          <div class="col-6">
-            <i class="fas fa-walking fa-4x" style="color:#a4a6b3;"></i>
+      <div class="container text-center" style="position: relative; z-index: 5;">
+        <h3 class="romantic-font mb-5" style="color:#dedee3;">“She chose someone else...”</h3>
+        <div class="walk-away">
+          <div>
+            <i class="fas fa-walking fa-4x walk-left" style="color:#b3aec7;"></i>
             <p>Sania walks away</p>
           </div>
-          <div class="col-6">
-            <i class="fas fa-user fa-4x" style="color:#8a8fa0;"></i>
-            <p>Asad stands still</p>
+          <div>
+            <i class="fas fa-user fa-4x other-guy" style="color:#7c8a9a;"></i>
+            <p>...with him</p>
+          </div>
+          <div>
+            <i class="fas fa-user fa-4x stand-still" style="color:#8a8fa0;"></i>
+            <p>Asad watches, heartbroken</p>
           </div>
         </div>
-        <h3 class="mt-5 romantic-font" style="color:#dedee3;">“She left without looking back.”</h3>
+        <p class="mt-5 romantic-font" style="color:#ffb7b7;">She didn't look back.</p>
       </div>
     </section>
 
-    <!-- SCENE 7 – Reconnection (After 2 Years) -->
+    <!-- SCENE 7 – RECONNECTION (After 2 Years) – original, keep warm tone -->
     <section id="scene7" class="scene" style="background: radial-gradient(circle at 30% 30%, #fbc7b9, #ffdab9);">
       <div class="container text-center">
         <div class="phone-mock" style="background: #fff1e6;">
@@ -412,7 +388,7 @@
       </div>
     </section>
 
-    <!-- SCENE 8 – Wedding Ending -->
+    <!-- SCENE 8 – WEDDING ENDING -->
     <section id="scene8" class="scene" style="background: radial-gradient(circle at 50% 50%, #fde6b3, #f8d56e);">
       <canvas id="confetti-canvas"></canvas>
       <div class="container text-center" style="z-index: 10;">
@@ -428,7 +404,7 @@
     </section>
   </div>
 
-  <!-- STORY CONTROL BUTTONS (NEXT, PREV, PLAY, MUSIC) -->
+  <!-- STORY CONTROL BUTTONS -->
   <div class="story-controls">
     <button id="playStoryBtn" class="ctrl-btn"><i class="fas fa-play"></i> Play Story</button>
     <button id="prevSceneBtn" class="ctrl-btn"><i class="fas fa-arrow-left"></i> Prev</button>
@@ -436,31 +412,22 @@
     <button id="musicToggleBtn" class="ctrl-btn music-toggle"><i class="fas fa-music"></i> ♫ Afsos (muted)</button>
   </div>
 
-  <!-- FOOTER (simple quote) -->
+  <!-- FOOTER -->
   <footer style="position: fixed; bottom: 100px; right: 20px; color: rgba(255,255,240,0.5); font-size: 0.8rem; z-index: 1000;">
     <span>❤️ love is timeless</span>
   </footer>
 
-  <!-- script.js embedded -->
+  <!-- JavaScript -->
   <script>
     (function() {
       "use strict";
 
-      // ---------- LOADING SCREEN ----------
-      window.addEventListener('load', function() {
-        setTimeout(() => {
-          document.getElementById('loadingScreen').style.opacity = '0';
-          document.getElementById('loadingScreen').style.visibility = 'hidden';
-        }, 1200);
-      });
-
-      // ---------- SCENE MANAGEMENT & SCROLL TRIGGER ----------
+      // ---------- SCENE MANAGEMENT & SCROLL ----------
       const scenes = document.querySelectorAll('.scene');
       const nextBtn = document.getElementById('nextSceneBtn');
       const prevBtn = document.getElementById('prevSceneBtn');
       const playBtn = document.getElementById('playStoryBtn');
 
-      // scroll to scene function
       function scrollToScene(index) {
         if (index >= 0 && index < scenes.length) {
           scenes[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -494,28 +461,21 @@
       }
       window.addEventListener('scroll', updateProgress);
 
-      // ---------- TYPING EFFECT SCENE 1 (additional) ----------
-      function typeWriterEffect(element, text, speed = 80) {
-        let i = 0;
-        element.innerHTML = '';
-        element.style.borderRight = '2px solid #ffb3c6';
-        function type() {
-          if (i < text.length) {
-            element.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-          } else {
-            element.style.borderRight = 'none';
-          }
+      // ---------- PARTICLES & RAIN (scenes 1,3,4) ----------
+      function createParticles(containerId, count) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        for (let i=0;i<count;i++) {
+          let p = document.createElement('div');
+          p.className = 'particle';
+          p.style.left = Math.random()*100 + '%';
+          p.style.animationDelay = Math.random()*8 + 's';
+          p.style.background = `rgba(255, ${120 + Math.random()*100}, 200, 0.5)`;
+          container.appendChild(p);
         }
-        type();
       }
-      const typingElem = document.querySelector('.typing-effect');
-      if (typingElem) {
-        typeWriterEffect(typingElem, 'Sania: Your art is beautiful ✨', 90);
-      }
+      createParticles('particleScene1', 40);
 
-      // ---------- RAIN EFFECT (scene 3 & 4) ----------
       function createRain(containerId, dropCount = 60) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -533,46 +493,19 @@
       createRain('rainScene3', 50);
       createRain('rainScene4', 80);
 
-      // ---------- FLOATING PARTICLES SCENE1 ----------
-      function createParticles(containerId, count) {
-        const container = document.getElementById(containerId);
-        for (let i=0;i<count;i++) {
-          let p = document.createElement('div');
-          p.className = 'particle';
-          p.style.left = Math.random()*100 + '%';
-          p.style.animationDelay = Math.random()*8 + 's';
-          p.style.background = `rgba(255, ${120 + Math.random()*100}, 200, 0.5)`;
-          container.appendChild(p);
-        }
-      }
-      createParticles('particleScene1', 40);
+      // ---------- HEARTBREAK (scene3) ----------
+      // (already symbolic, we keep the 💔)
 
-      // ---------- HEART BREAK ANIMATION (scene3) ----------
-      const heartIcon = document.querySelector('#heartBreakIcon i');
-      if (heartIcon) {
-        setTimeout(() => {
-          heartIcon.classList.remove('fa-heart');
-          heartIcon.classList.add('fa-heart-broken');
-          heartIcon.style.color = '#613a4b';
-          heartIcon.classList.add('heart-broken');
-        }, 800);
-      }
-
-      // ---------- THUNDER FLICKER (scene4) ----------
+      // ---------- THUNDER (scene4) ----------
       const thunderDiv = document.querySelector('.thunder-flash');
       setInterval(() => {
         if (thunderDiv) thunderDiv.style.opacity = (Math.random() * 0.2 + 0.05).toString();
       }, 200);
 
-      // ---------- TIMELINE SCENE5 "3 Years Later" Zoom + fade ----------
-      const yearEl = document.getElementById('yearTimeline');
-      if (yearEl) {
-        yearEl.classList.add('zoom-in');
-      }
-
-      // ---------- LEAVES FALLING (scene6) ----------
+      // ---------- LEAVES (scene6) ----------
       function createLeaves(containerId, count) {
         const container = document.getElementById(containerId);
+        if (!container) return;
         for (let i=0;i<count;i++) {
           let leaf = document.createElement('i');
           leaf.className = 'fas fa-leaf leaf';
@@ -585,7 +518,7 @@
       }
       createLeaves('leavesContainer', 25);
 
-      // ---------- CONFETTI + FIREWORKS (scene8) ----------
+      // ---------- CONFETTI (scene8) ----------
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
       let width, height;
@@ -627,7 +560,6 @@
         }
         requestAnimationFrame(drawConfetti);
       }
-      // start confetti only when scene8 is visible
       let confettiStarted = false;
       const observerConfetti = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -640,30 +572,25 @@
       });
       observerConfetti.observe(document.getElementById('scene8'));
 
-      // ---------- BACKGROUND MUSIC TOGGLE: Afsos – Anuv Jain ft. AP Dhillon ----------
+      // ---------- MUSIC TOGGLE: afsoos.mp3 ----------
       const musicBtn = document.getElementById('musicToggleBtn');
       let audio = document.getElementById('bgAudio');
-      let isMusicPlaying = false; // because muted autoplay is on, but muted
       
-      // Update button text to reflect song
       musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (muted)';
       
       musicBtn.addEventListener('click', function() {
-        // When clicked: unmute and play if paused, or mute/pause
         if (audio.muted) {
           audio.muted = false;
-          audio.play().catch(e => console.log('play prevented until interaction'));
+          audio.play().catch(e => console.log('interaction needed'));
           musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (playing)';
-          isMusicPlaying = true;
         } else {
           audio.muted = true;
           audio.pause();
           musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (muted)';
-          isMusicPlaying = false;
         }
       });
 
-      // ---------- SCROLL ANIMATIONS USING INTERSECTION OBSERVER ----------
+      // ---------- SCROLL ANIMATIONS OBSERVER ----------
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -676,12 +603,9 @@
       }, { threshold: 0.3 });
       scenes.forEach(scene => observer.observe(scene));
 
-      // initial current scene
       updateCurrentScene();
     })();
   </script>
-
-  <!-- Bootstrap JS bundle (for responsive components) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
