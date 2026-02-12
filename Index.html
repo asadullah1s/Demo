@@ -1,620 +1,688 @@
-<html
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoxAbility AI - Voice-First Professional Assistant</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4285F4;
-            --secondary: #34A853;
-            --accent: #EA4335;
-            --dark: #202124;
-            --light: #f8f9fa;
-            --gray: #5f6368;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: var(--light);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            margin-bottom: 40px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .logo-icon {
-            background: var(--primary);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
-        }
-        
-        h1 {
-            font-size: 3rem;
-            background: linear-gradient(90deg, #4285F4, #34A853);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-        }
-        
-        .tagline {
-            font-size: 1.2rem;
-            color: #bdc1c6;
-            max-width: 700px;
-            margin: 0 auto 30px;
-            line-height: 1.6;
-        }
-        
-        .demo-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 40px;
-            margin-bottom: 50px;
-        }
-        
-        .code-section, .explanation-section {
-            flex: 1;
-            min-width: 300px;
-            background: rgba(32, 33, 36, 0.8);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--primary);
-        }
-        
-        .section-title i {
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
-        
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .code-header h3 {
-            font-size: 1.2rem;
-        }
-        
-        .code-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn:hover {
-            background: #3367d6;
-            transform: translateY(-2px);
-        }
-        
-        .btn-voice {
-            background: var(--secondary);
-        }
-        
-        .btn-voice:hover {
-            background: #2e8b57;
-        }
-        
-        pre {
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: 25px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            border: 1px solid #333;
-            margin-top: 10px;
-        }
-        
-        code {
-            color: #f8f8f2;
-        }
-        
-        .token-keyword { color: #ff79c6; }
-        .token-function { color: #50fa7b; }
-        .token-string { color: #f1fa8c; }
-        .token-comment { color: #6272a4; }
-        .token-number { color: #bd93f9; }
-        .token-operator { color: #ff79c6; }
-        .token-punctuation { color: #f8f8f2; }
-        .token-class-name { color: #8be9fd; }
-        
-        .explanation-text {
-            background: rgba(26, 26, 26, 0.7);
-            border-radius: 10px;
-            padding: 25px;
-            border-left: 4px solid var(--secondary);
-            margin-top: 10px;
-            line-height: 1.6;
-        }
-        
-        .voice-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(66, 133, 244, 0.1);
-            border-radius: 10px;
-            border-left: 4px solid var(--primary);
-        }
-        
-        .pulse {
-            width: 20px;
-            height: 20px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin: 50px 0;
-        }
-        
-        .feature-card {
-            background: rgba(32, 33, 36, 0.8);
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            transition: transform 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-        }
-        
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: var(--primary);
-        }
-        
-        .gemini-section {
-            text-align: center;
-            padding: 40px;
-            background: rgba(26, 26, 26, 0.6);
-            border-radius: 15px;
-            margin: 40px 0;
-            border: 1px solid rgba(66, 133, 244, 0.3);
-        }
-        
-        .gemini-logo {
-            font-size: 3rem;
-            background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 20px;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 30px;
-            margin-top: 50px;
-            color: #bdc1c6;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .demo-note {
-            background: rgba(234, 67, 53, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 4px solid var(--accent);
-        }
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .demo-container {
-                flex-direction: column;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Asad & Sania · a cinematic love story</title>
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts: Poppins / Playfair Display -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 (icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- style.css embedded -->
+  <style>
+    /* ----- GLOBAL CINEMATIC STYLES ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0a0f1e;
+      color: white;
+      overflow-x: hidden;
+      position: relative;
+      transition: background 0.8s ease;
+    }
+    h1, h2, h3, .romantic-font {
+      font-family: 'Playfair Display', serif;
+    }
+    /* fullpage scenes */
+    .scene {
+      min-height: 100vh;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 2rem 1rem;
+      transition: background-color 1s, box-shadow 0.5s;
+      scroll-snap-align: start;
+    }
+    /* snap scroll optional (cinematic) */
+    body {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+    }
+    /* ----- LOADING SCREEN ----- */
+    .loading-screen {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #0a0a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 1.5s, visibility 1.5s;
+      flex-direction: column;
+    }
+    .loader-heart {
+      font-size: 4rem;
+      color: #ff7b9c;
+      animation: heartbeat 1.2s infinite;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); color: #ff4d6d; }
+    }
+    /* ----- PROGRESS BAR ----- */
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(255,255,255,0.1);
+      z-index: 1000;
+    }
+    .progress-bar-fill {
+      height: 5px;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4, #ffd1d1);
+      transition: width 0.2s;
+      box-shadow: 0 0 12px #ff9a9e;
+    }
+    /* ----- NAV BUTTONS + MUSIC TOGGLE ----- */
+    .story-controls {
+      position: fixed;
+      bottom: 25px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      z-index: 1050;
+      flex-wrap: wrap;
+      padding: 0 15px;
+    }
+    .ctrl-btn {
+      background: rgba(10, 15, 30, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 215, 215, 0.4);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+      transition: 0.4s;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ctrl-btn:hover {
+      background: #ffb3c6;
+      color: #1a1a2c;
+      border-color: #ff7b9c;
+    }
+    .music-toggle {
+      background: rgba(255, 123, 156, 0.2);
+      border: 1px solid #ff7b9c;
+    }
+    /* ----- SCENE COMMON ANIMATIONS ----- */
+    .fade-in {
+      animation: fadeIn 1.8s ease forwards;
+    }
+    @keyframes fadeIn { 0%{ opacity: 0; } 100%{ opacity: 1; } }
+    .slide-left { animation: slideLeft 1s ease; }
+    @keyframes slideLeft { 0%{ transform: translateX(80px); opacity: 0; } 100%{ transform: translateX(0); opacity: 1; } }
+    .slide-right { animation: slideRight 1s ease; }
+    @keyframes slideRight { 0%{ transform: translateX(-80px); opacity: 0; } 100%{ transform: translateX(0); opacity: 1; } }
+    .zoom-in { animation: zoomIn 1.2s ease; }
+    @keyframes zoomIn { 0%{ transform: scale(0.8); opacity: 0; } 100%{ transform: scale(1); opacity: 1; } }
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid #ffb3c6;
+      animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    }
+    @keyframes typing { from { width: 0 } to { width: 100% } }
+    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #ffb3c6 } }
+
+    /* ----- FLOATING PARTICLES / RAIN / LEAVES ----- */
+    .particle-bg {
+      position: absolute;
+      width: 100%; height: 100%;
+      top:0; left:0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 6px; height: 6px;
+      background: rgba(255, 200, 220, 0.4);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0.8); opacity: 1; }
+      100% { transform: translateY(-20vh) scale(0.2); opacity: 0; }
+    }
+    /* rain overlay */
+    .rain-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .raindrop {
+      position: absolute;
+      width: 2px; height: 15px;
+      background: linear-gradient(to bottom, rgba(200,230,255,0.6), rgba(150,200,255,0.2));
+      animation: rainDrop 0.8s infinite linear;
+    }
+    @keyframes rainDrop {
+      0% { transform: translateY(-20px); opacity: 0.6; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+    /* falling leaves */
+    .leaf {
+      position: absolute;
+      color: #d4b08c;
+      font-size: 20px;
+      opacity: 0.5;
+      animation: leafFall 6s linear infinite;
+    }
+    @keyframes leafFall {
+      0% { transform: rotate(0deg) translateY(-10px); opacity: 0.8; }
+      100% { transform: rotate(180deg) translateY(100vh); opacity: 0; }
+    }
+    /* confetti canvas */
+    #confetti-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+    /* phone mockup */
+    .phone-mock {
+      background: #1e1e2f;
+      border-radius: 36px;
+      padding: 20px 15px;
+      box-shadow: 0 30px 50px rgba(0,0,0,0.7);
+      border: 1px solid #44475a;
+      max-width: 360px;
+      width: 100%;
+    }
+    .chat-bubble {
+      background: #2e3b4e;
+      padding: 12px 18px;
+      border-radius: 24px 24px 24px 4px;
+      margin: 10px 0;
+      max-width: 80%;
+      color: white;
+    }
+    .chat-bubble.right {
+      background: #ff7b9c;
+      align-self: flex-end;
+      border-radius: 24px 24px 4px 24px;
+    }
+    .heart-symbol {
+      color: #ff4d6d;
+      font-size: 24px;
+      animation: heartbeat 1.2s infinite;
+    }
+    /* heart break */
+    .heart-broken {
+      color: #6b2d3b;
+      font-size: 50px;
+      position: relative;
+      animation: breakHeart 0.8s forwards;
+    }
+    @keyframes breakHeart {
+      0% { transform: scale(1); color: #ff4d6d; }
+      50% { transform: scale(1.2) rotate(10deg); }
+      100% { transform: scale(0.6) rotate(-20deg); color: #4a2c2c; opacity: 0.6; }
+    }
+    /* thunder */
+    .thunder-flash {
+      animation: thunderFlash 0.2s infinite;
+    }
+    @keyframes thunderFlash {
+      0% { background-color: rgba(255,255,200,0.2); }
+      100% { background-color: rgba(30,30,80,0.7); }
+    }
+    /* glow */
+    .glow-effect {
+      animation: softGlow 3s infinite alternate;
+    }
+    @keyframes softGlow {
+      from { text-shadow: 0 0 10px #ffb3c6, 0 0 20px #ff9eb5; }
+      to { text-shadow: 0 0 20px #ff7b9c, 0 0 40px #ff4d6d; }
+    }
+    /* responsive */
+    @media (max-width: 768px) {
+      .scene { padding: 1rem; }
+      .phone-mock { max-width: 300px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-accessible-icon"></i>
-                </div>
-                <h1>VoxAbility AI</h1>
-            </div>
-            <p class="tagline">
-                A Voice-First Professional & Market Awareness Copilot for Blind Users.
-                Empowering blind professionals through voice-controlled, explainable AI.
-            </p>
-            
-            <div class="demo-note">
-                <i class="fas fa-exclamation-circle"></i> 
-                <strong>Demo Preview:</strong> This is a visual representation of VoxAbility AI. 
-                The actual product is voice-first and designed for screen reader accessibility.
-            </div>
-        </header>
-        
-        <div class="demo-container">
-            <section class="code-section">
-                <div class="section-title">
-                    <i class="fas fa-code"></i>
-                    <h2>Generated Code Example</h2>
-                </div>
-                
-                <div class="code-header">
-                    <h3>Python API Client (Generated via Voice Command)</h3>
-                    <div class="code-actions">
-                        <button class="btn btn-voice" onclick="speakCode()">
-                            <i class="fas fa-volume-up"></i> Hear Code
-                        </button>
-                        <button class="btn" onclick="copyCode()">
-                            <i class="fas fa-copy"></i> Copy
-                        </button>
-                    </div>
-                </div>
-                
-                <pre><code id="code-block">
-<span class="token-keyword">import</span> requests
-<span class="token-keyword">import</span> json
-<span class="token-keyword">from</span> datetime <span class="token-keyword">import</span> datetime
 
-<span class="token-keyword">class</span> <span class="token-class-name">WeatherAPIClient</span>:
-    <span class="token-comment">"""
-    A weather API client for fetching current weather data.
-    Generated by VoxAbility AI via voice command:
-    'Create a Python class to fetch weather data from OpenWeatherMap API'
-    """</span>
-    
-    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, api_key):
-        <span class="token-keyword">self</span>.base_url = <span class="token-string">"https://api.openweathermap.org/data/2.5/"</span>
-        <span class="token-keyword">self</span>.api_key = api_key
-    
-    <span class="token-keyword">def</span> <span class="token-function">get_current_weather</span>(<span class="token-keyword">self</span>, city, country_code=None):
-        <span class="token-comment">"""Fetch current weather for a given city"""</span>
-        location = city
-        <span class="token-keyword">if</span> country_code:
-            location += <span class="token-string">","</span> + country_code
-        
-        params = {
-            <span class="token-string">"q"</span>: location,
-            <span class="token-string">"appid"</span>: <span class="token-keyword">self</span>.api_key,
-            <span class="token-string">"units"</span>: <span class="token-string">"metric"</span>
+  <!-- LOADING SCREEN ANIMATION -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loader-heart"><i class="fas fa-heart"></i></div>
+    <h3 class="mt-4 romantic-font" style="color:#ffe6f0;">Asad & Sania</h3>
+    <p style="color:#b3c7ff;">loading their story...</p>
+  </div>
+
+  <!-- PROGRESS BAR (bonus) -->
+  <div class="progress-container">
+    <div id="progressBar" class="progress-bar-fill"></div>
+  </div>
+
+  <!-- BACKGROUND MUSIC: Afsos – Anuv Jain ft. AP Dhillon (autoplay, muted, online source) -->
+  <audio id="bgAudio" loop autoplay muted preload="auto" style="display:none;">
+    <!-- Using a reliable, royalty-free online source. For the real song, replace this src with a direct link to "Afsos". -->
+    <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Chad_Crouch/Arps/Chad_Crouch_-_Shipping_Lanes.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+
+  <!-- MAIN STORY SECTIONS (8 SCENES) -->
+  <div class="container-fluid px-0">
+    <!-- SCENE 1 – Social Media Meeting -->
+    <section id="scene1" class="scene" style="background: radial-gradient(circle at 20% 50%, #1a1e30, #0b0c14);">
+      <div class="particle-bg" id="particleScene1"></div>
+      <div class="row w-100 justify-content-center">
+        <div class="col-md-6 col-lg-5 text-center">
+          <div class="phone-mock fade-in">
+            <div class="d-flex flex-column">
+              <div class="chat-bubble slide-left">Sania: Hi, I saw your post.</div>
+              <div class="chat-bubble right slide-right">Asad: Oh really? Nice to meet you 😊</div>
+              <div class="chat-bubble slide-left typing-effect" id="typingDemo">Sania: Your art is beautiful ✨</div>
+            </div>
+          </div>
+          <p class="mt-4 romantic-font" style="color:#ffe0f0;">♡ first message ♡</p>
+        </div>
+      </div>
+      <div style="position: absolute; bottom: 20px; color: rgba(255,255,255,0.5);">Scene 1 · Meeting</div>
+    </section>
+
+    <!-- SCENE 2 – Academy Days -->
+    <section id="scene2" class="scene" style="background: linear-gradient(145deg, #ffe6f0, #ffd9e8);">
+      <div class="container">
+        <div class="row align-items-center justify-content-center">
+          <div class="col-md-5 text-center">
+            <i class="fas fa-user-graduate fa-3x" style="color:#a64d79;"></i>
+            <h3 class="romantic-font mt-3" style="color:#732c4c;">Asad</h3>
+            <div class="heart-symbol mt-2"><i class="fas fa-heart"></i></div>
+          </div>
+          <div class="col-md-5 text-center">
+            <i class="fas fa-user-graduate fa-3x" style="color:#5c4d7a;"></i>
+            <h3 class="romantic-font mt-3" style="color:#3d2b4e;">Sania</h3>
+          </div>
+        </div>
+        <div class="row mt-5">
+          <div class="col-12 text-center">
+            <p style="color:#442233; font-size:1.4rem;" class="zoom-in"><i class="fas fa-book-open"></i> studying side by side</p>
+            <div class="floating-hearts"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 3 – One-Sided Love / Heartbreak -->
+    <section id="scene3" class="scene" style="background: #2c1e2e;">
+      <div class="rain-overlay" id="rainScene3"></div>
+      <div class="container">
+        <div class="row g-0 split-view">
+          <div class="col-6 text-center border-end" style="border-color: #795b6a!important;">
+            <i class="fas fa-user fa-4x" style="color:#dbb0c2;"></i>
+            <h4 style="color:#ebc7d5;">Asad</h4>
+            <div id="heartBreakIcon"><i class="fas fa-heart fa-3x" style="color:#ff6b7c;"></i></div>
+            <p class="mt-3" style="color:#f2d7e0;">“thinking of her...”</p>
+          </div>
+          <div class="col-6 text-center">
+            <i class="fas fa-user fa-4x" style="color:#b09bc0;"></i>
+            <h4 style="color:#d9c2e0;">Sania</h4>
+            <i class="fas fa-mobile-alt fa-3x" style="color:#a191b2;"></i>
+            <p style="color:#d3c0cd;">...ignoring</p>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12 text-center fade-in">
+            <span style="font-size:2rem; color:#b78c9c;">💔</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 4 – Depression Phase -->
+    <section id="scene4" class="scene" style="background: #121524;">
+      <div class="rain-overlay" id="rainScene4"></div>
+      <div class="thunder-flash" style="position:absolute; width:100%; height:100%; opacity:0.1;"></div>
+      <div class="container text-center">
+        <i class="fas fa-user fa-5x" style="color:#565a75;"></i>
+        <h2 class="romantic-font mt-4" style="color:#b3c7e5;">“Sometimes love hurts silently.”</h2>
+        <p style="color:#8b93af;">Asad sits alone ...</p>
+        <div style="margin-top: 40px;">
+          <i class="fas fa-cloud-rain fa-3x" style="color:#62728f;"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 5 – University Life (3 Years Later) -->
+    <section id="scene5" class="scene" style="background: linear-gradient(#3e5c6f, #24424b);">
+      <div class="container text-center">
+        <div class="campus-bg"></div>
+        <h1 id="yearTimeline" class="display-3 romantic-font" style="color:#ffeabf;">3 Years Later...</h1>
+        <div class="row mt-5 justify-content-center">
+          <div class="col-3"><i class="fas fa-university fa-3x"></i></div>
+          <div class="col-3"><i class="fas fa-walking fa-3x"></i></div>
+          <div class="col-3"><i class="fas fa-book fa-3x"></i></div>
+        </div>
+        <p class="mt-5" style="color:#fbeaff;">same campus · distant hearts</p>
+      </div>
+    </section>
+
+    <!-- SCENE 6 – Separation -->
+    <section id="scene6" class="scene" style="background: #2e2e3a;">
+      <div id="leavesContainer" style="position:absolute; width:100%; height:100%;"></div>
+      <div class="container text-center" style="backdrop-filter: blur(4px);">
+        <div class="row">
+          <div class="col-6">
+            <i class="fas fa-walking fa-4x" style="color:#a4a6b3;"></i>
+            <p>Sania walks away</p>
+          </div>
+          <div class="col-6">
+            <i class="fas fa-user fa-4x" style="color:#8a8fa0;"></i>
+            <p>Asad stands still</p>
+          </div>
+        </div>
+        <h3 class="mt-5 romantic-font" style="color:#dedee3;">“She left without looking back.”</h3>
+      </div>
+    </section>
+
+    <!-- SCENE 7 – Reconnection (After 2 Years) -->
+    <section id="scene7" class="scene" style="background: radial-gradient(circle at 30% 30%, #fbc7b9, #ffdab9);">
+      <div class="container text-center">
+        <div class="phone-mock" style="background: #fff1e6;">
+          <i class="fas fa-bell fa-2x glow-effect" style="color:#c9714b;"></i>
+          <p class="mt-2" style="color:#5e4b3c;">Social media notification</p>
+          <div class="chat-bubble" style="background:#ffd7ba;">Sania: Hey, long time ❤️</div>
+          <div class="chat-bubble right" style="background:#faa38b;">Asad: I missed you...</div>
+        </div>
+        <h4 class="mt-4 romantic-font" style="color:#7f4f3c;">After 2 years… destiny reconnects them.</h4>
+      </div>
+    </section>
+
+    <!-- SCENE 8 – Wedding Ending -->
+    <section id="scene8" class="scene" style="background: radial-gradient(circle at 50% 50%, #fde6b3, #f8d56e);">
+      <canvas id="confetti-canvas"></canvas>
+      <div class="container text-center" style="z-index: 10;">
+        <div class="golden-circle p-4">
+          <i class="fas fa-heart fa-4x" style="color:#c92a4b; animation: heartbeat 1.5s infinite;"></i>
+          <h1 class="romantic-font display-4" style="color:#4a2c2c;">Asad & Sania</h1>
+          <h3 style="color:#644117;">💍 finally together</h3>
+          <div class="mt-5 fade-in">
+            <p style="font-size:1.8rem; font-weight:600; color:#34200c;">“Some love stories are delayed…<br> but never denied.”</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- STORY CONTROL BUTTONS (NEXT, PREV, PLAY, MUSIC) -->
+  <div class="story-controls">
+    <button id="playStoryBtn" class="ctrl-btn"><i class="fas fa-play"></i> Play Story</button>
+    <button id="prevSceneBtn" class="ctrl-btn"><i class="fas fa-arrow-left"></i> Prev</button>
+    <button id="nextSceneBtn" class="ctrl-btn"><i class="fas fa-arrow-right"></i> Next</button>
+    <button id="musicToggleBtn" class="ctrl-btn music-toggle"><i class="fas fa-music"></i> ♫ Afsos (muted)</button>
+  </div>
+
+  <!-- FOOTER (simple quote) -->
+  <footer style="position: fixed; bottom: 100px; right: 20px; color: rgba(255,255,240,0.5); font-size: 0.8rem; z-index: 1000;">
+    <span>❤️ love is timeless</span>
+  </footer>
+
+  <!-- script.js embedded -->
+  <script>
+    (function() {
+      "use strict";
+
+      // ---------- LOADING SCREEN ----------
+      window.addEventListener('load', function() {
+        setTimeout(() => {
+          document.getElementById('loadingScreen').style.opacity = '0';
+          document.getElementById('loadingScreen').style.visibility = 'hidden';
+        }, 1200);
+      });
+
+      // ---------- SCENE MANAGEMENT & SCROLL TRIGGER ----------
+      const scenes = document.querySelectorAll('.scene');
+      const nextBtn = document.getElementById('nextSceneBtn');
+      const prevBtn = document.getElementById('prevSceneBtn');
+      const playBtn = document.getElementById('playStoryBtn');
+
+      // scroll to scene function
+      function scrollToScene(index) {
+        if (index >= 0 && index < scenes.length) {
+          scenes[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        
-        <span class="token-keyword">try</span>:
-            response = requests.get(
-                <span class="token-keyword">self</span>.base_url + <span class="token-string">"weather"</span>, 
-                params=params
-            )
-            response.raise_for_status()
-            
-            <span class="token-keyword">return</span> <span class="token-keyword">self</span>.<span class="token-function">_format_weather_data</span>(response.json())
-            
-        <span class="token-keyword">except</span> requests.exceptions.RequestException <span class="token-keyword">as</span> e:
-            <span class="token-keyword">return</span> {<span class="token-string">"error"</span>: <span class="token-string">f"API request failed: {str(e)}"</span>}
-    
-    <span class="token-keyword">def</span> <span class="token-function">_format_weather_data</span>(<span class="token-keyword">self</span>, data):
-        <span class="token-comment">"""Format raw API response into user-friendly structure"""</span>
-        <span class="token-keyword">return</span> {
-            <span class="token-string">"location"</span>: data[<span class="token-string">"name"</span>],
-            <span class="token-string">"temperature"</span>: data[<span class="token-string">"main"</span>][<span class="token-string">"temp"</span>],
-            <span class="token-string">"feels_like"</span>: data[<span class="token-string">"main"</span>][<span class="token-string">"feels_like"</span>],
-            <span class="token-string">"humidity"</span>: data[<span class="token-string">"main"</span>][<span class="token-string">"humidity"</span>],
-            <span class="token-string">"description"</span>: data[<span class="token-string">"weather"</span>][<span class="token-number">0</span>][<span class="token-string">"description"</span>],
-            <span class="token-string">"wind_speed"</span>: data[<span class="token-string">"wind"</span>][<span class="token-string">"speed"</span>],
-            <span class="token-string">"timestamp"</span>: datetime.now().strftime(<span class="token-string">"%Y-%m-%d %H:%M:%S"</span>)
+      }
+
+      let currentSceneIndex = 0;
+      function updateCurrentScene() {
+        const viewportMid = window.scrollY + window.innerHeight/2;
+        scenes.forEach((sc, i) => {
+          const rect = sc.getBoundingClientRect();
+          const absTop = rect.top + window.scrollY;
+          if (viewportMid >= absTop && viewportMid <= absTop + rect.height) {
+            currentSceneIndex = i;
+          }
+        });
+      }
+      window.addEventListener('scroll', updateCurrentScene);
+      
+      nextBtn.addEventListener('click', () => scrollToScene(currentSceneIndex + 1));
+      prevBtn.addEventListener('click', () => scrollToScene(currentSceneIndex - 1));
+      playBtn.addEventListener('click', () => scrollToScene(0));
+
+      // ---------- PROGRESS BAR ----------
+      const progressFill = document.getElementById('progressBar');
+      function updateProgress() {
+        const scrollY = window.scrollY;
+        const totalHeight = document.body.scrollHeight - window.innerHeight;
+        const progress = (scrollY / totalHeight) * 100;
+        progressFill.style.width = progress + '%';
+      }
+      window.addEventListener('scroll', updateProgress);
+
+      // ---------- TYPING EFFECT SCENE 1 (additional) ----------
+      function typeWriterEffect(element, text, speed = 80) {
+        let i = 0;
+        element.innerHTML = '';
+        element.style.borderRight = '2px solid #ffb3c6';
+        function type() {
+          if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+          } else {
+            element.style.borderRight = 'none';
+          }
         }
-    
-    <span class="token-keyword">def</span> <span class="token-function">get_weather_alert</span>(<span class="token-keyword">self</span>, city):
-        <span class="token-comment">"""Check for severe weather conditions"""</span>
-        weather = <span class="token-keyword">self</span>.get_current_weather(city)
-        
-        <span class="token-keyword">if</span> <span class="token-string">"error"</span> <span class="token-keyword">not</span> <span class="token-keyword">in</span> weather:
-            alerts = []
-            
-            <span class="token-keyword">if</span> weather[<span class="token-string">"wind_speed"</span>] &gt; <span class="token-number">20</span>:
-                alerts.append(<span class="token-string">"High wind warning"</span>)
-            
-            <span class="token-keyword">if</span> weather[<span class="token-string">"temperature"</span>] &lt; <span class="token-number">0</span>:
-                alerts.append(<span class="token-string">"Freezing temperature alert"</span>)
-            
-            <span class="token-keyword">return</span> {
-                <span class="token-string">"weather"</span>: weather,
-                <span class="token-string">"alerts"</span>: alerts
+        type();
+      }
+      const typingElem = document.querySelector('.typing-effect');
+      if (typingElem) {
+        typeWriterEffect(typingElem, 'Sania: Your art is beautiful ✨', 90);
+      }
+
+      // ---------- RAIN EFFECT (scene 3 & 4) ----------
+      function createRain(containerId, dropCount = 60) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        for (let i = 0; i < dropCount; i++) {
+          let drop = document.createElement('div');
+          drop.className = 'raindrop';
+          drop.style.left = Math.random() * 100 + '%';
+          drop.style.animationDelay = Math.random() * 2 + 's';
+          drop.style.animationDuration = 0.7 + Math.random() * 0.6 + 's';
+          drop.style.height = Math.random() * 20 + 8 + 'px';
+          drop.style.opacity = 0.3 + Math.random() * 0.4;
+          container.appendChild(drop);
+        }
+      }
+      createRain('rainScene3', 50);
+      createRain('rainScene4', 80);
+
+      // ---------- FLOATING PARTICLES SCENE1 ----------
+      function createParticles(containerId, count) {
+        const container = document.getElementById(containerId);
+        for (let i=0;i<count;i++) {
+          let p = document.createElement('div');
+          p.className = 'particle';
+          p.style.left = Math.random()*100 + '%';
+          p.style.animationDelay = Math.random()*8 + 's';
+          p.style.background = `rgba(255, ${120 + Math.random()*100}, 200, 0.5)`;
+          container.appendChild(p);
+        }
+      }
+      createParticles('particleScene1', 40);
+
+      // ---------- HEART BREAK ANIMATION (scene3) ----------
+      const heartIcon = document.querySelector('#heartBreakIcon i');
+      if (heartIcon) {
+        setTimeout(() => {
+          heartIcon.classList.remove('fa-heart');
+          heartIcon.classList.add('fa-heart-broken');
+          heartIcon.style.color = '#613a4b';
+          heartIcon.classList.add('heart-broken');
+        }, 800);
+      }
+
+      // ---------- THUNDER FLICKER (scene4) ----------
+      const thunderDiv = document.querySelector('.thunder-flash');
+      setInterval(() => {
+        if (thunderDiv) thunderDiv.style.opacity = (Math.random() * 0.2 + 0.05).toString();
+      }, 200);
+
+      // ---------- TIMELINE SCENE5 "3 Years Later" Zoom + fade ----------
+      const yearEl = document.getElementById('yearTimeline');
+      if (yearEl) {
+        yearEl.classList.add('zoom-in');
+      }
+
+      // ---------- LEAVES FALLING (scene6) ----------
+      function createLeaves(containerId, count) {
+        const container = document.getElementById(containerId);
+        for (let i=0;i<count;i++) {
+          let leaf = document.createElement('i');
+          leaf.className = 'fas fa-leaf leaf';
+          leaf.style.left = Math.random()*100 + '%';
+          leaf.style.animationDelay = Math.random()*5 + 's';
+          leaf.style.fontSize = (15 + Math.random()*20) + 'px';
+          leaf.style.color = '#b28b5e';
+          container.appendChild(leaf);
+        }
+      }
+      createLeaves('leavesContainer', 25);
+
+      // ---------- CONFETTI + FIREWORKS (scene8) ----------
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let particles = [];
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = document.getElementById('scene8').offsetHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function createConfetti() {
+        for (let i = 0; i < 120; i++) {
+          particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: Math.random() * 8 + 3,
+            speedY: Math.random() * 6 + 4,
+            speedX: Math.random() * 4 - 2,
+            color: `hsl(${Math.random() * 60 + 30}, 90%, 60%)`,
+          });
+        }
+      }
+      function drawConfetti() {
+        ctx.clearRect(0, 0, width, height);
+        for (let p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          p.y += p.speedY * 0.1;
+          p.x += p.speedX * 0.1;
+          if (p.y > height) {
+            p.y = 0;
+            p.x = Math.random() * width;
+          }
+        }
+        requestAnimationFrame(drawConfetti);
+      }
+      // start confetti only when scene8 is visible
+      let confettiStarted = false;
+      const observerConfetti = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.target.id === 'scene8' && entry.isIntersecting && !confettiStarted) {
+            createConfetti();
+            drawConfetti();
+            confettiStarted = true;
+          }
+        });
+      });
+      observerConfetti.observe(document.getElementById('scene8'));
+
+      // ---------- BACKGROUND MUSIC TOGGLE: Afsos – Anuv Jain ft. AP Dhillon ----------
+      const musicBtn = document.getElementById('musicToggleBtn');
+      let audio = document.getElementById('bgAudio');
+      let isMusicPlaying = false; // because muted autoplay is on, but muted
+      
+      // Update button text to reflect song
+      musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (muted)';
+      
+      musicBtn.addEventListener('click', function() {
+        // When clicked: unmute and play if paused, or mute/pause
+        if (audio.muted) {
+          audio.muted = false;
+          audio.play().catch(e => console.log('play prevented until interaction'));
+          musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (playing)';
+          isMusicPlaying = true;
+        } else {
+          audio.muted = true;
+          audio.pause();
+          musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (muted)';
+          isMusicPlaying = false;
+        }
+      });
+
+      // ---------- SCROLL ANIMATIONS USING INTERSECTION OBSERVER ----------
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in');
+            if (entry.target.id === 'scene5') {
+              document.getElementById('yearTimeline').classList.add('zoom-in');
             }
-        
-        <span class="token-keyword">return</span> weather
+          }
+        });
+      }, { threshold: 0.3 });
+      scenes.forEach(scene => observer.observe(scene));
 
-<span class="token-comment"># Example usage (explained via voice)</span>
-<span class="token-comment"># client = WeatherAPIClient("your_api_key_here")</span>
-<span class="token-comment"># weather = client.get_current_weather("London", "UK")</span>
-<span class="token-comment"># print(f"Current temperature: {weather['temperature']}°C")</span>
-</code></pre>
-                
-                <div class="voice-indicator">
-                    <div class="pulse"></div>
-                    <div>
-                        <strong>Voice Command Used:</strong>
-                        <em>"Create a Python class to fetch weather data from OpenWeatherMap API with error handling and alerts"</em>
-                    </div>
-                </div>
-            </section>
-            
-            <section class="explanation-section">
-                <div class="section-title">
-                    <i class="fas fa-volume-up"></i>
-                    <h2>Voice Narration & Explanation</h2>
-                </div>
-                
-                <div class="explanation-text">
-                    <p><strong>VoxAbility AI Voice Explanation:</strong></p>
-                    
-                    <p>"I've created a Python class called WeatherAPIClient that fetches weather data from the OpenWeatherMap API. Let me explain what I've built:</p>
-                    
-                    <p>First, I imported the necessary modules: requests for API calls, json for data handling, and datetime for timestamps.</p>
-                    
-                    <p>The class has an initialization method that sets up the API base URL and stores your API key securely.</p>
-                    
-                    <p>The main method, get_current_weather, takes a city name and optional country code. It constructs the API request with proper parameters including units set to metric for Celsius temperatures.</p>
-                    
-                    <p>I've added comprehensive error handling using try-except blocks to catch network issues or API errors, returning a clear error message if something goes wrong.</p>
-                    
-                    <p>The _format_weather_data method processes the raw API response into a clean, structured dictionary with only the essential information: location, temperature, feels-like temperature, humidity, weather description, wind speed, and a timestamp.</p>
-                    
-                    <p>Additionally, I included a get_weather_alert method that checks for severe conditions - specifically high winds over 20 meters per second and freezing temperatures below 0°C.</p>
-                    
-                    <p>Would you like me to explain any part in more detail, or should I proceed to create unit tests for this class?"</p>
-                </div>
-                
-                <div style="margin-top: 25px; display: flex; gap: 15px;">
-                    <button class="btn" onclick="simulateVoiceResponse()">
-                        <i class="fas fa-play"></i> Play Voice Explanation
-                    </button>
-                    <button class="btn btn-voice" style="background: var(--accent);">
-                        <i class="fas fa-microphone"></i> Ask Follow-up Question
-                    </button>
-                </div>
-                
-                <div class="demo-note" style="margin-top: 25px;">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>How This Works for Blind Users:</strong>
-                    <ul style="margin-top: 10px; padding-left: 20px;">
-                        <li>User speaks a command in natural language</li>
-                        <li>VoxAbility AI explains what it will do before execution</li>
-                        <li>User confirms with voice command ("yes, proceed")</li>
-                        <li>AI generates code while narrating each section</li>
-                        <li>User can ask questions about any part of the code</li>
-                    </ul>
-                </div>
-            </section>
-        </div>
-        
-        <section class="gemini-section">
-            <div class="gemini-logo">
-                <i class="fab fa-google"></i>
-            </div>
-            <h2>Powered by Gemini 3 API</h2>
-            <p style="max-width: 800px; margin: 20px auto; line-height: 1.6;">
-                This project leverages <strong>Gemini 3's advanced reasoning, long-context memory, and agent-like capabilities</strong> to understand complex voice commands, generate production-ready code with explanations, and maintain conversational context throughout development sessions.
-            </p>
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px;">
-                <div class="feature-card" style="background: rgba(66, 133, 244, 0.1);">
-                    <div class="feature-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3>Advanced Reasoning</h3>
-                    <p>Understands complex requirements and architectural decisions</p>
-                </div>
-                <div class="feature-card" style="background: rgba(52, 168, 83, 0.1);">
-                    <div class="feature-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h3>Conversational AI</h3>
-                    <p>Explains technical concepts in accessible, plain language</p>
-                </div>
-                <div class="feature-card" style="background: rgba(234, 67, 53, 0.1);">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Safety First</h3>
-                    <p>Built-in confirmations and educational-only market insights</p>
-                </div>
-            </div>
-        </section>
-        
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-blind"></i>
-                </div>
-                <h3>Voice-First Design</h3>
-                <p>Entirely operable through voice commands with no screen dependency</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-code-branch"></i>
-                </div>
-                <h3>Freelancing Assistant</h3>
-                <p>Code generation, debugging, documentation, and client communication</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3>Market Awareness</h3>
-                <p>Educational market insights (no trading advice or execution)</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-user-check"></i>
-                </div>
-                <h3>Human-in-Control</h3>
-                <p>Every action requires explicit user confirmation</p>
-            </div>
-        </div>
-        
-        <footer>
-            <p>VoxAbility AI &copy; 2024 | Built for the Gemini API Hackathon</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; color: #9aa0a6;">
-                This demo visually represents a voice-first application designed for blind professionals.
-                The actual implementation uses Gemini 3 API for natural language understanding and code generation.
-            </p>
-            <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
-                <a href="#" style="color: #bdc1c6; text-decoration: none;">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
-                <a href="#" style="color: #bdc1c6; text-decoration: none;">
-                    <i class="fas fa-file-alt"></i> Documentation
-                </a>
-                <a href="#" style="color: #bdc1c6; text-decoration: none;">
-                    <i class="fas fa-video"></i> Demo Video
-                </a>
-            </div>
-        </footer>
-    </div>
-    
-    <script>
-        function speakCode() {
-            const speech = new SpeechSynthesisUtterance();
-            speech.text = "Here's the Python code I generated. This is a weather API client class with methods for fetching current weather data, formatting responses, and checking for weather alerts. Would you like me to explain any specific part?";
-            speech.rate = 0.9;
-            speech.pitch = 1;
-            speech.volume = 1;
-            window.speechSynthesis.speak(speech);
-            
-            // Visual feedback
-            const btn = document.querySelector('.btn-voice');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-volume-up"></i> Speaking...';
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 3000);
-        }
-        
-        function copyCode() {
-            const codeText = document.getElementById('code-block').innerText;
-            navigator.clipboard.writeText(codeText).then(() => {
-                const btn = document.querySelector('.btn');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                }, 2000);
-            });
-        }
-        
-        function simulateVoiceResponse() {
-            const speech = new SpeechSynthesisUtterance();
-            speech.text = "I've created a Python class called Weather API Client that fetches weather data from the Open Weather Map API. Let me explain what I've built. First, I imported the necessary modules. The class has an initialization method that sets up the API base URL and stores your API key securely. The main method, get current weather, takes a city name and optional country code. I've added comprehensive error handling to catch network issues. The method processes the raw API response into a clean, structured dictionary. Additionally, I included a get weather alert method that checks for severe conditions. Would you like me to explain any part in more detail?";
-            speech.rate = 0.85;
-            speech.pitch = 1;
-            speech.volume = 1;
-            window.speechSynthesis.speak(speech);
-            
-            // Visual feedback
-            const btn = document.querySelectorAll('.btn')[1];
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-play"></i> Speaking...';
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 15000);
-        }
-        
-        // Add some interactivity to the feature cards
-        document.querySelectorAll('.feature-card').forEach(card => {
-            card.addEventListener('click', function() {
-                this.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 200);
-            });
-        });
-        
-        // Initialize with a welcome message
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                console.log('VoxAbility AI Demo Loaded');
-                console.log('This demo showcases how blind developers can work with code through voice commands.');
-            }, 1000);
-        });
-    </script>
+      // initial current scene
+      updateCurrentScene();
+    })();
+  </script>
+
+  <!-- Bootstrap JS bundle (for responsive components) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
