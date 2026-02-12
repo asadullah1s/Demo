@@ -1,301 +1,631 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Asad & Sania – 3D Love Story</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Asad & Sania · The Cinematic Story</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- Bootstrap -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #ffb7b2;
+      --accent: #ff9a9e;
+      --dark: #0f172a;
+      --glass: rgba(15, 23, 42, 0.6);
+    }
 
-<style>
-html,body{
-margin:0;
-padding:0;
-overflow-x:hidden;
-background:#000814;
-font-family: 'Segoe UI', sans-serif;
-color:white;
-}
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background-color: var(--dark);
+      font-family: 'Lato', sans-serif;
+      color: white;
+    }
 
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
-}
+    /* --- CINEMATIC CANVAS --- */
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-.scene-section{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-font-size:3rem;
-font-weight:700;
-background:linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.8));
-}
+    /* --- SCROLL SECTIONS --- */
+    .story-section {
+      position: relative;
+      height: 150vh; /* Extra height for scroll pacing */
+      width: 100%;
+      z-index: 10;
+      pointer-events: none; /* Let clicks pass to UI elements */
+    }
 
-.navbar{
-background:rgba(0,0,0,0.6) !important;
-backdrop-filter:blur(10px);
-}
-</style>
+    .content-card {
+      position: sticky;
+      top: 30vh;
+      margin: 0 auto;
+      max-width: 500px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.8s ease-out;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      pointer-events: auto;
+    }
+
+    .content-card.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    h1, h2 { font-family: 'Cinzel', serif; letter-spacing: 2px; }
+    .text-highlight { color: var(--primary); font-weight: 700; }
+    
+    /* --- CHAT UI --- */
+    .chat-interface {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      padding: 15px;
+      text-align: left;
+      font-size: 0.9rem;
+      margin-top: 15px;
+    }
+    .msg { margin: 5px 0; padding: 8px 12px; border-radius: 15px; max-width: 80%; }
+    .msg.left { background: #334155; border-bottom-left-radius: 2px; }
+    .msg.right { background: #be123c; color: white; margin-left: auto; border-bottom-right-radius: 2px; }
+
+    /* --- UI CONTROLS --- */
+    .ui-controls {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: 15px;
+    }
+    .btn-cinematic {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 10px 25px;
+      border-radius: 50px;
+      backdrop-filter: blur(5px);
+      transition: 0.3s;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+    .btn-cinematic:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
+
+    /* --- LOADING SCREEN --- */
+    #loader {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #000;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      transition: opacity 1s;
+    }
+    .loader-text { color: var(--primary); margin-top: 20px; font-family: 'Cinzel'; animation: pulse 2s infinite; }
+    
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-<div class="container">
-<a class="navbar-brand fw-bold">Asad ❤️ Sania</a>
-</div>
-</nav>
+  <div id="loader">
+    <div class="spinner-border text-light" role="status"></div>
+    <div class="loader-text">Loading Cinematic Assets...</div>
+  </div>
 
-<canvas id="webgl"></canvas>
+  <div id="canvas-container"></div>
 
-<section class="scene-section" id="scene1">First Hug</section>
-<section class="scene-section" id="scene2">First Smile</section>
-<section class="scene-section" id="scene3">Rain Scene</section>
-<section class="scene-section" id="scene4">Fight</section>
-<section class="scene-section" id="scene5">Distance</section>
-<section class="scene-section" id="scene6">Realization</section>
-<section class="scene-section" id="scene7">Wedding</section>
+  <audio id="bgMusic" loop>
+    <source src="afsoos.mp3" type="audio/mpeg">
+  </audio>
 
-<script type="module">
+  <div class="ui-controls">
+    <button class="btn-cinematic" onclick="toggleMusic()"><i class="fas fa-music"></i> Music</button>
+    <button class="btn-cinematic" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"><i class="fas fa-undo"></i> Replay</button>
+  </div>
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js";
-import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/controls/OrbitControls.js";
-import {EffectComposer} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/postprocessing/EffectComposer.js";
-import {RenderPass} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/postprocessing/RenderPass.js";
-import {UnrealBloomPass} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/postprocessing/UnrealBloomPass.js";
+  <main>
+    <div class="story-section" data-scene="0">
+      <div class="content-card active">
+        <h2>The Beginning</h2>
+        <div class="chat-interface">
+          <div class="msg left">Sania: hello ap Romeo</div>
+          <div class="msg right">Asad: Han 😂 😂</div>
+          <div class="msg left">Sania: Ku sad h?</div>
+          <div class="msg right">Asad: Just tired of pretending...</div>
+        </div>
+        <p class="mt-3">A digital connection that became a <span class="text-highlight">real embrace</span>.</p>
+      </div>
+    </div>
 
-//////////////////////////////////////////////////////////////////
-// 🎬 CINEMATIC ENGINE
-//////////////////////////////////////////////////////////////////
+    <div class="story-section" data-scene="1">
+      <div class="content-card">
+        <h2>Academy Days</h2>
+        <p>She convinced him to join DIT.</p>
+        <p>Studying side by side, <span class="text-highlight">every single day</span>.</p>
+      </div>
+    </div>
 
-class CinematicEngine {
+    <div class="story-section" data-scene="2">
+      <div class="content-card">
+        <h2>Unspoken Love</h2>
+        <p>Asad fell deeply. Sania just saw a friend.</p>
+        <p class="text-danger"><i class="fas fa-heart-broken"></i> Jealousy. Fights. Silence.</p>
+      </div>
+    </div>
 
-constructor(){
-this.clock=new THREE.Clock();
-this.currentScene=0;
+    <div class="story-section" data-scene="3">
+      <div class="content-card">
+        <h2>The Dark Phase</h2>
+        <p>Love hurts silently.</p>
+        <p>Alone in the rain, wondering if it was all a mistake.</p>
+      </div>
+    </div>
 
-this.initRenderer();
-this.initScene();
-this.initCamera();
-this.initLighting();
-this.initPost();
-this.createWorld();
-this.createCharacters();
-this.createRain();
-this.createConfetti();
-this.observeScroll();
-this.animate();
-}
+    <div class="story-section" data-scene="4">
+      <div class="content-card">
+        <h2>University Life</h2>
+        <p>3 Years. Different Departments.</p>
+        <p>Meeting daily, loving madly, <span class="text-highlight">waiting silently</span>.</p>
+      </div>
+    </div>
 
-///////////////////////////////////////////////////////////////
-initRenderer(){
-this.canvas=document.getElementById("webgl");
-this.renderer=new THREE.WebGLRenderer({canvas:this.canvas,antialias:true});
-this.renderer.setSize(window.innerWidth,window.innerHeight);
-this.renderer.shadowMap.enabled=true;
-this.renderer.physicallyCorrectLights=true;
-this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
-this.renderer.toneMappingExposure=1.2;
-}
+    <div class="story-section" data-scene="5">
+      <div class="content-card">
+        <h2>The Heartbreak</h2>
+        <p>She chose someone else.</p>
+        <p>She walked away without looking back.</p>
+      </div>
+    </div>
 
-///////////////////////////////////////////////////////////////
-initScene(){
-this.scene=new THREE.Scene();
-this.scene.background=new THREE.Color(0x0a0f1e);
-}
+    <div class="story-section" data-scene="6">
+      <div class="content-card">
+        <h2>2 Years Later</h2>
+        <div class="chat-interface">
+          <div class="msg left"><i class="fas fa-bell"></i> Sania: Hey, long time...</div>
+          <div class="msg right">Asad: I missed you.</div>
+        </div>
+        <p>Destiny cannot be denied.</p>
+      </div>
+    </div>
 
-///////////////////////////////////////////////////////////////
-initCamera(){
-this.camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);
-this.camera.position.set(0,3,8);
-this.controls=new OrbitControls(this.camera,this.renderer.domElement);
-this.controls.enableDamping=true;
-}
+    <div class="story-section" data-scene="7">
+      <div class="content-card" style="border-color: gold; box-shadow: 0 0 30px rgba(255,215,0,0.3);">
+        <h1 style="color: gold;">Asad & Sania</h1>
+        <h3>Forever</h3>
+        <p>Some love stories are delayed, but never denied.</p>
+        <div class="mt-3"><i class="fas fa-infinity fa-2x"></i></div>
+      </div>
+    </div>
+    
+    <div style="height: 50vh;"></div> </main>
 
-///////////////////////////////////////////////////////////////
-initLighting(){
-this.ambient=new THREE.AmbientLight(0x404060,0.8);
-this.scene.add(this.ambient);
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-this.key=new THREE.DirectionalLight(0xffffff,2);
-this.key.position.set(5,10,5);
-this.key.castShadow=true;
-this.scene.add(this.key);
+    // --- CONFIGURATION ---
+    const CONFIG = {
+      bloom: true,
+      shadows: true,
+      debug: false
+    };
 
-this.rim=new THREE.PointLight(0xff69b4,2,50);
-this.rim.position.set(0,4,-5);
-this.scene.add(this.rim);
-}
+    // --- INIT ENGINE ---
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x050510, 0.02);
 
-///////////////////////////////////////////////////////////////
-initPost(){
-this.composer=new EffectComposer(this.renderer);
-this.composer.addPass(new RenderPass(this.scene,this.camera));
-this.bloom=new UnrealBloomPass(
-new THREE.Vector2(window.innerWidth,window.innerHeight),
-1.4,0.4,0.85);
-this.composer.addPass(this.bloom);
-}
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    container.appendChild(renderer.domElement);
 
-///////////////////////////////////////////////////////////////
-createWorld(){
-const ground=new THREE.Mesh(
-new THREE.CircleGeometry(40,64),
-new THREE.MeshStandardMaterial({color:0x1b263b})
-);
-ground.rotation.x=-Math.PI/2;
-ground.receiveShadow=true;
-this.scene.add(ground);
-}
+    // --- POST PROCESSING (BLOOM) ---
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.threshold = 0;
+    bloomPass.strength = 0.6; // Glow strength
+    bloomPass.radius = 0.5;
 
-///////////////////////////////////////////////////////////////
-createCharacter(color){
-const group=new THREE.Group();
+    const composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
 
-const body=new THREE.Mesh(
-new THREE.CylinderGeometry(0.6,0.6,1.2,32),
-new THREE.MeshStandardMaterial({color,roughness:0.3})
-);
-body.position.y=0.6;
-body.castShadow=true;
-group.add(body);
+    // --- LIGHTING DIRECTOR ---
+    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft base
+    scene.add(ambientLight);
 
-const head=new THREE.Mesh(
-new THREE.SphereGeometry(0.5,32,32),
-new THREE.MeshStandardMaterial({color:0xffe0bd})
-);
-head.position.y=1.7;
-head.castShadow=true;
-group.add(head);
+    const sunLight = new THREE.DirectionalLight(0xffddaa, 2);
+    sunLight.position.set(5, 10, 5);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    scene.add(sunLight);
 
-group.userData={walkCycle:0};
+    const spotLight = new THREE.SpotLight(0x0088ff, 0, 0, Math.PI/6, 0.5, 1); // Blue spotlight for sadness
+    spotLight.position.set(0, 10, 0);
+    scene.add(spotLight);
 
-return group;
-}
+    // --- ENVIRONMENT ---
+    // Floor
+    const floorGeo = new THREE.PlaneGeometry(100, 100);
+    const floorMat = new THREE.MeshStandardMaterial({ 
+      color: 0x111118, 
+      roughness: 0.1, 
+      metalness: 0.5 
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
 
-createCharacters(){
-this.asad=this.createCharacter(0x4a90e2);
-this.sania=this.createCharacter(0xff4f81);
+    // --- PROCEDURAL CHARACTER RIG (The "Pixar" Logic) ---
+    class Character {
+      constructor(color, isFemale = false) {
+        this.mesh = new THREE.Group();
+        this.isFemale = isFemale;
+        
+        // Materials
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.3 });
+        const clothMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 });
 
-this.asad.position.x=-2;
-this.sania.position.x=2;
+        // Body
+        const bodyGeo = new THREE.CapsuleGeometry(0.3, 0.6, 4, 8);
+        this.body = new THREE.Mesh(bodyGeo, clothMat);
+        this.body.position.y = 0.75;
+        this.body.castShadow = true;
+        this.mesh.add(this.body);
 
-this.scene.add(this.asad);
-this.scene.add(this.sania);
-}
+        // Head
+        const headGeo = new THREE.SphereGeometry(0.25, 16, 16);
+        this.head = new THREE.Mesh(headGeo, skinMat);
+        this.head.position.y = 1.4;
+        this.head.castShadow = true;
+        this.mesh.add(this.head);
 
-///////////////////////////////////////////////////////////////
-createRain(){
-const count=2000;
-const geo=new THREE.BufferGeometry();
-const pos=new Float32Array(count*3);
+        // Hair
+        const hairGeo = isFemale ? 
+          new THREE.SphereGeometry(0.27, 16, 16, 0, 6.3, 0, 1.5) : // Long hair
+          new THREE.SphereGeometry(0.26, 16, 16, 0, 6.3, 0, 1.2); // Short hair
+        const hairMat = new THREE.MeshStandardMaterial({ color: 0x332211 });
+        this.hair = new THREE.Mesh(hairGeo, hairMat);
+        this.hair.position.y = 1.42;
+        if(isFemale) {
+           this.hair.rotation.x = -0.2;
+           this.hair.position.z = -0.05;
+        }
+        this.mesh.add(this.hair);
 
-for(let i=0;i<count*3;i++){
-pos[i]=(Math.random()-0.5)*50;
-}
-geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+        // Limbs Containers (for pivoting)
+        this.armL = new THREE.Group(); this.armL.position.set(-0.35, 1.2, 0);
+        this.armR = new THREE.Group(); this.armR.position.set(0.35, 1.2, 0);
+        this.legL = new THREE.Group(); this.legL.position.set(-0.15, 0.5, 0);
+        this.legR = new THREE.Group(); this.legR.position.set(0.15, 0.5, 0);
+        this.mesh.add(this.armL, this.armR, this.legL, this.legR);
 
-const mat=new THREE.PointsMaterial({color:0x66ccff,size:0.1});
-this.rain=new THREE.Points(geo,mat);
-this.rain.visible=false;
-this.scene.add(this.rain);
-}
+        // Limb Geometry
+        const armGeo = new THREE.CapsuleGeometry(0.08, 0.5, 4, 8);
+        const legGeo = new THREE.CapsuleGeometry(0.09, 0.6, 4, 8);
+        
+        const armMeshL = new THREE.Mesh(armGeo, clothMat); armMeshL.position.y = -0.25; this.armL.add(armMeshL);
+        const armMeshR = new THREE.Mesh(armGeo, clothMat); armMeshR.position.y = -0.25; this.armR.add(armMeshR);
+        const legMeshL = new THREE.Mesh(legGeo, new THREE.MeshStandardMaterial({color:0x222222})); legMeshL.position.y = -0.3; this.legL.add(legMeshL);
+        const legMeshR = new THREE.Mesh(legGeo, new THREE.MeshStandardMaterial({color:0x222222})); legMeshR.position.y = -0.3; this.legR.add(legMeshR);
+      }
 
-///////////////////////////////////////////////////////////////
-createConfetti(){
-const count=1000;
-const geo=new THREE.BufferGeometry();
-const pos=new Float32Array(count*3);
-for(let i=0;i<count*3;i++){
-pos[i]=(Math.random()-0.5)*20;
-}
-geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+      // Procedural Animations
+      animate(action, time) {
+        // Reset defaults
+        this.head.rotation.set(0,0,0);
+        this.armL.rotation.set(0,0,0);
+        this.armR.rotation.set(0,0,0);
+        
+        if (action === 'idle') {
+          // Breathing
+          this.body.scale.set(1, 1 + Math.sin(time*2)*0.01, 1);
+          this.armL.rotation.z = 0.1;
+          this.armR.rotation.z = -0.1;
+        } 
+        else if (action === 'walk') {
+          const speed = 5;
+          this.legL.rotation.x = Math.sin(time * speed) * 0.5;
+          this.legR.rotation.x = Math.sin(time * speed + Math.PI) * 0.5;
+          this.armL.rotation.x = Math.sin(time * speed + Math.PI) * 0.3;
+          this.armR.rotation.x = Math.sin(time * speed) * 0.3;
+          this.mesh.position.y = Math.abs(Math.sin(time * speed*2)) * 0.05; // Bobbing
+        }
+        else if (action === 'hug') {
+          this.armL.rotation.z = -0.5; 
+          this.armL.rotation.x = 0.8;
+          this.armR.rotation.z = 0.5;
+          this.armR.rotation.x = 0.8;
+          this.head.rotation.x = 0.2; // Lean in
+        }
+        else if (action === 'sit') {
+          this.legL.rotation.x = -1.5;
+          this.legR.rotation.x = -1.5;
+          this.mesh.position.y = -0.3;
+        }
+        else if (action === 'sad') {
+          this.head.rotation.x = 0.5; // Head down
+          this.armL.rotation.x = 0.2;
+          this.armL.rotation.z = 0.2;
+        }
+      }
+    }
 
-const mat=new THREE.PointsMaterial({color:0xffd700,size:0.2});
-this.confetti=new THREE.Points(geo,mat);
-this.confetti.visible=false;
-this.scene.add(this.confetti);
-}
+    // Spawn Characters
+    const asad = new Character(0x1e3a8a, false); // Blue suit
+    const sania = new Character(0xdb2777, true); // Pink dress
+    const otherGuy = new Character(0x444444, false); // Grey suit
 
-///////////////////////////////////////////////////////////////
-observeScroll(){
-const sections=document.querySelectorAll(".scene-section");
-const observer=new IntersectionObserver(entries=>{
-entries.forEach(entry=>{
-if(entry.isIntersecting){
-const id=parseInt(entry.target.id.replace("scene",""));
-this.switchScene(id);
-}
-});
-},{threshold:0.6});
-sections.forEach(sec=>observer.observe(sec));
-}
+    scene.add(asad.mesh);
+    scene.add(sania.mesh);
+    // Other guy added later dynamically
 
-///////////////////////////////////////////////////////////////
-switchScene(id){
-this.currentScene=id;
+    // --- PARTICLE ENGINES ---
+    
+    // Rain Engine
+    const rainCount = 2000;
+    const rainGeo = new THREE.BufferGeometry();
+    const rainPos = new Float32Array(rainCount * 3);
+    for(let i=0; i<rainCount*3; i++) rainPos[i] = (Math.random() - 0.5) * 30;
+    rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+    const rainMat = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.05, transparent: true, opacity: 0.6 });
+    const rainSystem = new THREE.Points(rainGeo, rainMat);
+    rainSystem.visible = false;
+    scene.add(rainSystem);
 
-this.rain.visible=false;
-this.confetti.visible=false;
+    // Confetti Engine
+    const confettiCount = 500;
+    const confettiGeo = new THREE.PlaneGeometry(0.05, 0.08);
+    const confettiMat = new THREE.MeshBasicMaterial({ color: 0xffd700, side: THREE.DoubleSide });
+    const confettiMesh = new THREE.InstancedMesh(confettiGeo, confettiMat, confettiCount);
+    const dummy = new THREE.Object3D();
+    const confettiData = [];
+    
+    for (let i = 0; i < confettiCount; i++) {
+      confettiData.push({ 
+        x: (Math.random() - 0.5) * 10, 
+        y: Math.random() * 10 + 5, 
+        z: (Math.random() - 0.5) * 5,
+        speed: Math.random() * 0.05 + 0.02,
+        rot: Math.random() * 0.1 
+      });
+    }
+    confettiMesh.visible = false;
+    scene.add(confettiMesh);
 
-if(id===3){
-this.rain.visible=true;
-}
+    // --- TIMELINE ENGINE & SCROLL LOGIC ---
+    let currentScene = 0;
+    let scrollPercent = 0;
 
-if(id===7){
-this.startWedding();
-}
-}
+    // SCENE DIRECTOR
+    function updateStory() {
+      const time = Date.now() * 0.001;
 
-///////////////////////////////////////////////////////////////
-startWedding(){
+      // Default States
+      rainSystem.visible = false;
+      confettiMesh.visible = false;
+      scene.remove(otherGuy.mesh);
+      spotLight.intensity = 0;
+      sunLight.intensity = 2;
+      sunLight.color.setHex(0xffddaa);
+      bloomPass.strength = 0.6;
+      scene.fog.color.setHex(0x050510);
+      scene.background = null; // Clear
 
-this.confetti.visible=true;
+      // Scene Logic
+      switch(currentScene) {
+        case 0: // Hug
+          asad.mesh.position.set(-0.6, 0, 0);
+          sania.mesh.position.set(0.6, 0, 0);
+          asad.mesh.rotation.y = Math.PI/2;
+          sania.mesh.rotation.y = -Math.PI/2;
+          asad.animate('hug', time);
+          sania.animate('hug', time);
+          
+          camera.position.lerp(new THREE.Vector3(0, 1.5, 4), 0.05);
+          break;
 
-this.key.color.set(0xffd700);
-this.key.intensity=3;
+        case 1: // Academy (Sitting)
+          asad.mesh.position.set(-0.5, 0, 0);
+          sania.mesh.position.set(0.5, 0, 0);
+          asad.mesh.rotation.y = 0.2;
+          sania.mesh.rotation.y = -0.2;
+          asad.animate('sit', time);
+          sania.animate('sit', time);
+          camera.position.lerp(new THREE.Vector3(0, 1, 3.5), 0.05);
+          break;
 
-this.camera.position.set(0,2,5);
+        case 2: // One Sided (Walking/Talking)
+          asad.mesh.position.set(-1, 0, 0);
+          sania.mesh.position.set(1, 0, 0);
+          asad.mesh.rotation.y = 0.5; // looking at her
+          sania.mesh.rotation.y = 1.0; // looking away
+          asad.animate('idle', time);
+          sania.animate('walk', time); // walking away slightly
+          camera.position.lerp(new THREE.Vector3(0, 1.5, 5), 0.05);
+          break;
 
-this.asad.position.x=-0.5;
-this.sania.position.x=0.5;
-}
+        case 3: // Depression (Rain)
+          rainSystem.visible = true;
+          sunLight.intensity = 0.2;
+          spotLight.intensity = 2; // Blue spot on him
+          sania.mesh.position.set(100,0,0); // Hide her
+          asad.mesh.position.set(0, 0, 0);
+          asad.animate('sad', time);
+          
+          // Animate Rain
+          const positions = rainSystem.geometry.attributes.position.array;
+          for(let i=1; i<rainCount*3; i+=3) {
+            positions[i] -= 0.3;
+            if (positions[i] < 0) positions[i] = 10;
+          }
+          rainSystem.geometry.attributes.position.needsUpdate = true;
+          
+          camera.position.lerp(new THREE.Vector3(0, 1.2, 3), 0.02);
+          break;
 
-///////////////////////////////////////////////////////////////
-updateCharacters(delta){
-const t=performance.now()*0.001;
+        case 4: // University (Walking together)
+          asad.mesh.position.set(-0.8, 0, 0);
+          sania.mesh.position.set(0.8, 0, 0);
+          asad.mesh.rotation.set(0,0,0);
+          sania.mesh.rotation.set(0,0,0);
+          asad.animate('walk', time);
+          sania.animate('walk', time);
+          camera.position.lerp(new THREE.Vector3(0, 1.5, 6), 0.05);
+          break;
 
-this.asad.scale.y=1+Math.sin(t)*0.02;
-this.sania.scale.y=1+Math.cos(t)*0.02;
+        case 5: // Separation
+          scene.add(otherGuy.mesh);
+          asad.mesh.position.set(-2, 0, 2);
+          sania.mesh.position.set(1, 0, 0);
+          otherGuy.mesh.position.set(2, 0, 0);
+          
+          asad.animate('sad', time);
+          sania.animate('walk', time);
+          otherGuy.animate('walk', time);
+          
+          sania.mesh.rotation.y = Math.PI / 2;
+          otherGuy.mesh.rotation.y = Math.PI / 2;
+          
+          camera.position.lerp(new THREE.Vector3(0, 2, 7), 0.05);
+          break;
 
-if(this.currentScene===3){
-this.rain.rotation.y+=delta*0.2;
-}
+        case 6: // Reconnect
+          scene.remove(otherGuy.mesh);
+          asad.mesh.position.set(-1.5, 0, 0);
+          sania.mesh.position.set(1.5, 0, 0);
+          asad.mesh.rotation.y = 1.5;
+          sania.mesh.rotation.y = -1.5;
+          asad.animate('idle', time);
+          sania.animate('idle', time);
+          camera.position.lerp(new THREE.Vector3(0, 1.5, 4), 0.05);
+          break;
 
-if(this.currentScene===7){
-this.confetti.rotation.y+=delta*0.3;
-}
-}
+        case 7: // Wedding
+          confettiMesh.visible = true;
+          bloomPass.strength = 1.2;
+          sunLight.color.setHex(0xffaa00); // Gold light
+          
+          asad.mesh.position.set(-0.5, 0, 0);
+          sania.mesh.position.set(0.5, 0, 0);
+          asad.mesh.rotation.y = 0.5;
+          sania.mesh.rotation.y = -0.5;
+          
+          asad.animate('idle', time);
+          sania.animate('idle', time);
+          
+          // Confetti Physics
+          for(let i=0; i<confettiCount; i++) {
+            const data = confettiData[i];
+            data.y -= data.speed;
+            if(data.y < 0) data.y = 10;
+            
+            dummy.position.set(data.x, data.y, data.z);
+            dummy.rotation.x += data.rot;
+            dummy.rotation.y += data.rot;
+            dummy.updateMatrix();
+            confettiMesh.setMatrixAt(i, dummy.matrix);
+          }
+          confettiMesh.instanceMatrix.needsUpdate = true;
+          
+          camera.position.lerp(new THREE.Vector3(0, 1.2, 5), 0.01); // Slow zoom
+          break;
+      }
+      
+      // Look at logic
+      const lookTarget = new THREE.Vector3(0, 1, 0);
+      camera.lookAt(lookTarget);
+    }
 
-///////////////////////////////////////////////////////////////
-animate(){
-requestAnimationFrame(()=>this.animate());
-const delta=this.clock.getDelta();
-this.updateCharacters(delta);
-this.controls.update();
-this.composer.render();
-}
+    // RENDER LOOP
+    function animate() {
+      requestAnimationFrame(animate);
+      updateStory();
+      composer.render();
+    }
 
-}
+    // START
+    animate();
+    document.getElementById('loader').style.opacity = '0';
+    setTimeout(() => document.getElementById('loader').style.display = 'none', 1000);
 
-//////////////////////////////////////////////////////////////////
-new CinematicEngine();
-//////////////////////////////////////////////////////////////////
+    // --- DOM LISTENERS ---
+    
+    // Intersection Observer for Scroll Triggers
+    const sections = document.querySelectorAll('.story-section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          currentScene = parseInt(entry.target.getAttribute('data-scene'));
+          
+          // UI Animation
+          document.querySelectorAll('.content-card').forEach(c => c.classList.remove('active'));
+          const card = entry.target.querySelector('.content-card');
+          if(card) card.classList.add('active');
+        }
+      });
+    }, { threshold: 0.5 });
+    
+    sections.forEach(s => observer.observe(s));
 
-</script>
+    // Window Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+  </script>
+
+  <script>
+    function toggleMusic() {
+      const audio = document.getElementById('bgMusic');
+      if (audio.paused) audio.play();
+      else audio.pause();
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
