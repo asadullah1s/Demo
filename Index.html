@@ -1,635 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-  <title>Asad & Sania · 2D Animated Cartoon</title>
-  <!-- Bootstrap 5.3 + Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <!-- Google Fonts: Playfair + Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- GSAP + ScrollTrigger + TextPlugin -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
-  <!-- Anime.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-  <!-- Howler.js for advanced audio control -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
-  <style>
-    /* ---------- CINEMATIC 2D CARTOON STYLE ---------- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #0a0c12;
-      color: #fff;
-      overflow-x: hidden;
-      transition: background 0.5s, color 0.3s;
-    }
-    body.dark-mode {
-      background: #050608;
-      color: #eaeef2;
-    }
-    /* loading screen */
-    .loading-screen {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle at 30% 30%, #1a1e2c, #0a0c14);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 1.5s, visibility 1.5s;
-      flex-direction: column;
-    }
-    .loading-progress {
-      width: 240px; height: 6px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      margin-top: 30px;
-      overflow: hidden;
-    }
-    .loading-bar {
-      width: 0%; height: 100%;
-      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
-      transition: width 0.3s;
-    }
-    /* scene wrapper */
-    .scene {
-      width: 100%;
-      min-height: 100vh;
-      height: 100vh;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      scroll-snap-align: start;
-      padding: 1.5rem;
-    }
-    /* canvas for weather / parallax layers */
-    .scene-canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 1;
-    }
-    /* content overlay - glassmorphic */
-    .story-card {
-      position: relative;
-      z-index: 20;
-      background: rgba(10, 15, 25, 0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 200, 220, 0.25);
-      border-radius: 48px 48px 48px 12px;
-      padding: 2.5rem 2rem;
-      max-width: 700px;
-      width: 90%;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-      transition: all 0.4s;
-    }
-    .dark-mode .story-card {
-      background: rgba(5, 8, 15, 0.8);
-      border-color: rgba(255, 220, 240, 0.15);
-    }
-    /* character stage: 2D cartoon rig */
-    .character-stage {
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      gap: 3rem;
-      margin: 2rem 0;
-      position: relative;
-      min-height: 220px;
-    }
-    .character {
-      position: relative;
-      width: 140px;
-      height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      filter: drop-shadow(0 10px 8px rgba(0,0,0,0.3));
-    }
-    /* body – simple shape */
-    .char-body {
-      width: 70px;
-      height: 90px;
-      background: #4a90e2; /* asad */
-      border-radius: 40px 40px 20px 20px;
-      position: relative;
-      bottom: 0;
-      box-shadow: 0 6px 0 #2c5a8c;
-    }
-    .sania .char-body {
-      background: #ff7b9c;
-      box-shadow: 0 6px 0 #c55373;
-    }
-    /* head */
-    .char-head {
-      width: 80px;
-      height: 80px;
-      background: #ffdfc4;
-      border-radius: 50%;
-      position: absolute;
-      top: -25px;
-      left: -5px;
-      box-shadow: 0 4px 0 #d4a88c;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-    /* facial features */
-    .eyes {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-    }
-    .eye {
-      width: 14px; height: 14px;
-      background: #221c1a;
-      border-radius: 50%;
-      position: relative;
-    }
-    .eye-lid {
-      width: 18px; height: 10px;
-      background: #ffdfc4;
-      position: absolute;
-      top: -4px; left: -2px;
-      border-radius: 50%;
-      transform: scaleY(0);
-      transition: transform 0.2s;
-    }
-    .blink .eye-lid {
-      transform: scaleY(1);
-    }
-    .mouth {
-      width: 24px; height: 12px;
-      background: transparent;
-      border-bottom: 4px solid #b14b4b;
-      border-radius: 0 0 20px 20px;
-      margin-top: 8px;
-    }
-    .mouth.sad { border-bottom: 4px solid #6b5e5e; transform: rotate(180deg) scaleX(0.8); }
-    .mouth.happy { border-bottom: 8px solid #ff6b7c; border-radius: 20px; width: 28px; }
-    .mouth.shock { width: 16px; height: 16px; border: 2px solid #4a3a3a; border-radius: 50%; background: #fff; border-bottom: 4px solid #aaa; }
-    /* hair / accessories */
-    .asad-hair {
-      width: 60px; height: 30px;
-      background: #4a3c31;
-      border-radius: 30px 30px 0 0;
-      position: absolute; top: -12px; left: 10px;
-    }
-    .sania-bow {
-      position: absolute; top: -10px; right: -5px;
-      font-size: 28px; color: #ff4d6d;
-    }
-    /* emotions engine (class toggles) */
-    .character.happy .mouth { border-bottom: 8px solid #ff6b7c; border-radius: 20px; width: 28px; }
-    .character.sad .mouth { border-bottom: 4px solid #6b5e5e; transform: rotate(180deg) scaleX(0.8); }
-    .character.crying .eye::after { content: "💧"; position: absolute; font-size: 16px; right: -6px; top: -2px; }
-    .character.shock .mouth { width: 16px; height: 16px; border: 2px solid #4a3a3a; border-radius: 50%; background: #fff; border-bottom: 4px solid #aaa; }
-    /* subtitles container */
-    .subtitle-box {
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      padding: 12px 24px;
-      border-radius: 50px;
-      display: inline-block;
-      margin-top: 20px;
-      border-left: 6px solid #ff9eb5;
-      font-size: 1.2rem;
-      font-weight: 500;
-      min-height: 70px;
-    }
-    /* control bar */
-    .cinema-controls {
-      position: fixed;
-      bottom: 30px; left: 0; right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-      z-index: 1000;
-      flex-wrap: wrap;
-    }
-    .ctrl-btn {
-      background: rgba(20, 25, 45, 0.8);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 180, 200, 0.5);
-      color: white;
-      padding: 12px 28px;
-      border-radius: 60px;
-      font-weight: 600;
-      transition: 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border: none;
-      box-shadow: 0 8px 18px black;
-    }
-    .ctrl-btn:hover { background: #ff8fa5; color: #1a1e2c; }
-    .progress-container {
-      position: fixed; top: 0; left: 0; width: 100%; height: 6px; z-index: 2000;
-      background: rgba(0,0,0,0.3);
-    }
-    .progress-fill {
-      width: 0%; height: 100%;
-      background: linear-gradient(90deg, #ffb3c6, #ff7b9c);
-      transition: width 0.1s;
-    }
-    /* dark mode toggle */
-    .dark-toggle {
-      position: fixed; top: 20px; right: 80px; z-index: 3000;
-    }
-    .fullscreen-toggle {
-      position: fixed; top: 20px; right: 20px; z-index: 3000;
-    }
-    /* parallax layers */
-    .parallax-bg {
-      position: absolute; width: 100%; height: 100%;
-      background-size: cover; background-position: center;
-      opacity: 0.2;
-    }
-    @media (max-width: 768px) {
-      .character-stage { gap: 1rem; }
-      .character { transform: scale(0.8); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asad & Sania – 3D Love Story</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+html,body{
+margin:0;
+padding:0;
+overflow-x:hidden;
+background:#000814;
+font-family: 'Segoe UI', sans-serif;
+color:white;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+.scene-section{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+font-size:3rem;
+font-weight:700;
+background:linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.8));
+}
+
+.navbar{
+background:rgba(0,0,0,0.6) !important;
+backdrop-filter:blur(10px);
+}
+</style>
 </head>
 <body>
-  <!-- LOADING SCREEN (animated) -->
-  <div id="loadingScreen" class="loading-screen">
-    <div style="font-size: 80px; color: #ffb3c6;"><i class="bi bi-heart-fill"></i></div>
-    <h2 class="romantic-font mt-3" style="color: #ffe6f0;">Asad & Sania</h2>
-    <p style="color: #b3d0ff;">loading 2D animated story...</p>
-    <div class="loading-progress">
-      <div id="loadingBar" class="loading-bar" style="width: 0%;"></div>
-    </div>
-  </div>
 
-  <!-- PROGRESS BAR -->
-  <div class="progress-container">
-    <div id="progressFill" class="progress-fill"></div>
-  </div>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+<div class="container">
+<a class="navbar-brand fw-bold">Asad ❤️ Sania</a>
+</div>
+</nav>
 
-  <!-- DARK MODE & FULLSCREEN -->
-  <div class="dark-toggle">
-    <button id="darkModeBtn" class="btn btn-outline-light rounded-pill px-4 py-2"><i class="bi bi-moon-stars"></i> Dark</button>
-  </div>
-  <div class="fullscreen-toggle">
-    <button id="fullscreenBtn" class="btn btn-outline-light rounded-pill px-4 py-2"><i class="bi bi-arrows-fullscreen"></i> Cinema</button>
-  </div>
+<canvas id="webgl"></canvas>
 
-  <!-- BACKGROUND MUSIC (controlled via Howler) -->
-  <div style="display: none;" id="musicPlayer"></div>
+<section class="scene-section" id="scene1">First Hug</section>
+<section class="scene-section" id="scene2">First Smile</section>
+<section class="scene-section" id="scene3">Rain Scene</section>
+<section class="scene-section" id="scene4">Fight</section>
+<section class="scene-section" id="scene5">Distance</section>
+<section class="scene-section" id="scene6">Realization</section>
+<section class="scene-section" id="scene7">Wedding</section>
 
-  <!-- 8 CINEMATIC SCENES (story untouched, only visualized) -->
-  <div class="container-fluid px-0 snap-container">
-    <!-- SCENE 1: Social Media Meeting + Hug animation -->
-    <section id="scene1" class="scene" data-index="0">
-      <canvas id="canvas1" class="scene-canvas"></canvas>
-      <div class="story-card text-center">
-        <div class="character-stage">
-          <div id="asad1" class="character asad">
-            <div class="char-head">
-              <div class="asad-hair"></div>
-              <div class="eyes"><div class="eye"><div class="eye-lid"></div></div><div class="eye"><div class="eye-lid"></div></div></div>
-              <div class="mouth happy"></div>
-            </div>
-            <div class="char-body"></div>
-          </div>
-          <div id="sania1" class="character sania">
-            <div class="char-head">
-              <span class="sania-bow">🎀</span>
-              <div class="eyes"><div class="eye"><div class="eye-lid"></div></div><div class="eye"><div class="eye-lid"></div></div></div>
-              <div class="mouth happy"></div>
-            </div>
-            <div class="char-body"></div>
-          </div>
-        </div>
-        <div class="phone-mock bg-dark p-3 rounded-4" style="max-width: 400px; margin: 0 auto;">
-          <div class="chat-bubble">Sania: hello ap Romeo</div>
-          <div class="chat-bubble right">Asad: Han 😂 😂</div>
-          <div class="chat-bubble">Sania: ya Roz confession ap per lag rhy h ku sad h</div>
-          <div class="chat-bubble right">Asad: Han yar tang ho gya Hu ab choke my Beth k dant nikalu to iny yaqeen ho ga ni sad</div>
-        </div>
-        <div id="subtitle1" class="subtitle-box mt-4 w-100">✨ first chat & hug ✨</div>
-      </div>
-    </section>
-    <!-- SCENE 2: Academy Days – Sania convinces Asad to join DIT -->
-    <section id="scene2" class="scene" data-index="1">
-      <canvas id="canvas2" class="scene-canvas"></canvas>
-      <div class="story-card text-center">
-        <h3 class="romantic-font">🎓 Academy Days</h3>
-        <div class="character-stage">
-          <div id="asad2" class="character asad"><div class="char-head"><div class="asad-hair"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="mouth"></div></div><div class="char-body"></div></div>
-          <div id="sania2" class="character sania"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="mouth happy"></div></div><div class="char-body"></div></div>
-        </div>
-        <p class="fs-4"><i class="bi bi-chat-quote"></i> “Sania convinced Asad to do DIT with her”</p>
-        <p>They started studying together every day.</p>
-        <div id="subtitle2" class="subtitle-box">📚 study buddies</div>
-      </div>
-    </section>
-    <!-- SCENE 3: One-Sided Love – Asad loves her, she ignores, fights about male friends -->
-    <section id="scene3" class="scene" data-index="2">
-      <canvas id="canvas3" class="scene-canvas"></canvas>
-      <div class="story-card text-center">
-        <div class="character-stage">
-          <div id="asad3" class="character asad sad"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
-          <div id="sania3" class="character sania"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"></div><div class="mouth"></div></div><div class="char-body"></div></div>
-        </div>
-        <i class="bi bi-heartbreak fs-1" style="color: #c44569;"></i>
-        <h4>Asad fell one-sided love</h4>
-        <p>Sania just considers him a friend. Fights start because of her male friends.</p>
-        <div id="subtitle3" class="subtitle-box">💔 silent love</div>
-      </div>
-    </section>
-    <!-- SCENE 4: Depression Phase (rain, thunder) -->
-    <section id="scene4" class="scene" data-index="3">
-      <canvas id="canvas4" class="scene-canvas"></canvas>
-      <div class="story-card text-center">
-        <div class="character-stage">
-          <div id="asad4" class="character asad sad crying"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
-        </div>
-        <h2 class="romantic-font">“Sometimes love hurts silently.”</h2>
-        <p>Asad sits alone ...</p>
-        <div id="subtitle4" class="subtitle-box">🌧️ depression phase</div>
-      </div>
-    </section>
-    <!-- SCENE 5: University Life – 3 years together, different departments, meet daily, madly in love -->
-    <section id="scene5" class="scene" data-index="4">
-      <canvas id="canvas5" class="scene-canvas"></canvas>
-      <div class="story-card text-center">
-        <h1 class="display-4 romantic-font">3 Years Together</h1>
-        <div class="character-stage">
-          <div id="asad5" class="character asad happy"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth happy"></div></div><div class="char-body"></div></div>
-          <div id="sania5" class="character sania happy"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"></div><div class="mouth happy"></div></div><div class="char-body"></div></div>
-        </div>
-        <p class="fs-5">Same uni – different depts – meet daily. Asad loves her madly.</p>
-        <div id="subtitle5" class="subtitle-box">🏛️ madly in love</div>
-      </div>
-    </section>
-    <!-- SCENE 6: Separation – She left Asad for his friend/class fellow. Full walk animation -->
-    <section id="scene6" class="scene" data-index="5">
-      <canvas id="canvas6" class="scene-canvas"></canvas>
-      <div class="story-card text-center">
-        <h3 class="romantic-font">“She chose someone else...”</h3>
-        <div class="character-stage" style="justify-content: space-evenly;">
-          <div id="sania6" class="character sania" style="transform: translateX(-20px);"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
-          <div id="otherGuy6" style="width:80px;"><i class="bi bi-person fs-1"></i><p style="font-size:0.8rem;">class fellow</p></div>
-          <div id="asad6" class="character asad sad" style="transform: translateX(20px);"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
-        </div>
-        <p>Sania walks away with him. Asad watches, heartbroken.</p>
-        <div id="subtitle6" class="subtitle-box">🚶‍♀️💔 she didn't look back</div>
-      </div>
-    </section>
-    <!-- SCENE 7: Reconnection – After 2 years, social media -->
-    <section id="scene7" class="scene" data-index="6">
-      <canvas id="canvas7" class="scene-canvas"></canvas>
-      <div class="story-card text-center">
-        <div class="phone-mock bg-warning bg-opacity-25 p-3 rounded-4">
-          <i class="bi bi-bell-fill fs-1"></i>
-          <p>Social media notification</p>
-          <div class="chat-bubble">Sania: Hey, long time ❤️</div>
-          <div class="chat-bubble right">Asad: I missed you...</div>
-        </div>
-        <h4 class="mt-4 romantic-font">After 2 years… destiny reconnects them.</h4>
-        <div id="subtitle7" class="subtitle-box">💌 reconnection</div>
-      </div>
-    </section>
-    <!-- SCENE 8: Wedding Ending -->
-    <section id="scene8" class="scene" data-index="7">
-      <canvas id="canvas8" class="scene-canvas"></canvas>
-      <div class="story-card text-center" style="border-color: #ffd700;">
-        <i class="bi bi-heart-fill fs-1" style="color: #ff4d6d; animation: heartbeat 1.5s infinite;"></i>
-        <h1 class="display-4 romantic-font">Asad & Sania</h1>
-        <h3>💍 finally together</h3>
-        <div class="mt-4">
-          <p class="fs-2 fw-bold" style="color: #ffd966;">“Some love stories are delayed… but never denied.”</p>
-        </div>
-        <div id="subtitle8" class="subtitle-box">✨ wedding bliss</div>
-      </div>
-    </section>
-  </div>
+<script type="module">
 
-  <!-- CINEMA CONTROL BAR -->
-  <div class="cinema-controls">
-    <button id="playBtn" class="ctrl-btn"><i class="bi bi-play-fill"></i> Play Story</button>
-    <button id="prevBtn" class="ctrl-btn"><i class="bi bi-skip-backward-fill"></i> Prev</button>
-    <button id="nextBtn" class="ctrl-btn"><i class="bi bi-skip-forward-fill"></i> Next</button>
-    <button id="musicToggle" class="ctrl-btn"><i class="bi bi-music-note"></i> Afsos (off)</button>
-    <button id="autoCinema" class="ctrl-btn"><i class="bi bi-camera-reels"></i> Auto</button>
-  </div>
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js";
+import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/controls/OrbitControls.js";
+import {EffectComposer} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/postprocessing/EffectComposer.js";
+import {RenderPass} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/postprocessing/RenderPass.js";
+import {UnrealBloomPass} from "https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/postprocessing/UnrealBloomPass.js";
 
-  <script type="module">
-    // ---------- ADVANCED 2D ANIMATION ENGINE ----------
-    import gsap from 'https://cdn.skypack.dev/gsap';
-    import ScrollTrigger from 'https://cdn.skypack.dev/gsap/ScrollTrigger';
-    import TextPlugin from 'https://cdn.skypack.dev/gsap/TextPlugin';
-    gsap.registerPlugin(ScrollTrigger, TextPlugin);
+//////////////////////////////////////////////////////////////////
+// 🎬 CINEMATIC ENGINE
+//////////////////////////////////////////////////////////////////
 
-    // ---------- AUDIO ENGINE (Howler) ----------
-    const sound = new Howl({
-      src: ['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'], // placeholder – replace with afsoos.mp3
-      loop: true,
-      volume: 0.3,
-      html5: true
-    });
+class CinematicEngine {
 
-    // ---------- SCENE MANAGER CLASS ----------
-    class SceneManager {
-      constructor() {
-        this.scenes = document.querySelectorAll('.scene');
-        this.current = 0;
-        this.timelines = [];
-        this.init();
-      }
-      init() {
-        this.scenes.forEach((scene, i) => this.buildSceneTimeline(scene, i));
-        this.setupScrollTrigger();
-        this.setupControls();
-      }
-      buildSceneTimeline(scene, index) {
-        const tl = gsap.timeline({ paused: true });
-        // character entrances, facial animations, subtitles
-        const chars = scene.querySelectorAll('.character');
-        const subtitle = scene.querySelector('.subtitle-box');
-        // animate characters fade in + bounce
-        tl.from(chars, { duration: 0.8, y: 60, opacity: 0, stagger: 0.2, ease: 'back.out(1.2)' })
-          .from(subtitle, { duration: 0.6, scaleX: 0, opacity: 0, transformOrigin: 'left center' }, '-=0.4')
-          .call(() => this.applyEmotion(scene, index), null, '+=0.2');
-        
-        // blink animation loop
-        gsap.to(chars.querySelectorAll('.eye-lid'), {
-          duration: 0.1, scaleY: 1, repeat: -1, repeatDelay: 3, yoyo: true, ease: 'none'
-        });
-        this.timelines[index] = tl;
-      }
-      applyEmotion(scene, index) {
-        const asad = scene.querySelector('.asad');
-        const sania = scene.querySelector('.sania');
-        if (!asad) return;
-        // emotion mapping per scene
-        switch(index) {
-          case 0: // happy both
-            asad.classList.add('happy'); sania.classList.add('happy'); break;
-          case 1: asad.classList.add('happy'); sania.classList.add('happy'); break;
-          case 2: asad.classList.add('sad'); asad.classList.add('crying'); break;
-          case 3: asad.classList.add('sad', 'crying'); break;
-          case 4: asad.classList.add('happy'); sania.classList.add('happy'); break;
-          case 5: asad.classList.add('sad'); sania.classList.add('sad'); break;
-          case 6: asad.classList.add('happy'); sania.classList.add('happy'); break;
-          case 7: asad.classList.add('happy'); sania.classList.add('happy'); break;
-        }
-      }
-      setupScrollTrigger() {
-        this.scenes.forEach((scene, i) => {
-          ScrollTrigger.create({
-            trigger: scene,
-            start: 'top center',
-            end: 'bottom center',
-            onEnter: () => this.playScene(i),
-            onEnterBack: () => this.playScene(i),
-            onLeave: () => this.pauseScene(i),
-            onLeaveBack: () => this.pauseScene(i)
-          });
-        });
-      }
-      playScene(index) {
-        this.timelines[index]?.play();
-        this.current = index;
-      }
-      pauseScene(index) {
-        this.timelines[index]?.pause();
-      }
-      next() { 
-        const next = Math.min(this.current + 1, this.scenes.length-1);
-        this.scenes[next].scrollIntoView({ behavior: 'smooth' });
-      }
-      prev() {
-        const prev = Math.max(this.current - 1, 0);
-        this.scenes[prev].scrollIntoView({ behavior: 'smooth' });
-      }
-      setupControls() {
-        document.getElementById('nextBtn').addEventListener('click', () => this.next());
-        document.getElementById('prevBtn').addEventListener('click', () => this.prev());
-        document.getElementById('playBtn').addEventListener('click', () => this.scenes[0].scrollIntoView({ behavior: 'smooth' }));
-      }
-    }
+constructor(){
+this.clock=new THREE.Clock();
+this.currentScene=0;
 
-    // ---------- WEATHER & PARALLAX CANVAS ENGINE ----------
-    class WeatherCanvas {
-      constructor(canvasId, type) {
-        this.canvas = document.getElementById(canvasId);
-        if (!this.canvas) return;
-        this.ctx = this.canvas.getContext('2d');
-        this.type = type;
-        this.particles = [];
-        this.init();
-      }
-      init() {
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-        if (this.type === 'rain') this.createRain(150);
-        if (this.type === 'leaves') this.createLeaves(30);
-        if (this.type === 'confetti') this.createConfetti(100);
-        if (this.type === 'sparkle') this.createSparkle(60);
-        this.animate();
-      }
-      resize() {
-        this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetHeight;
-      }
-      createRain(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, len: 10+Math.random()*15, speed: 5+Math.random()*6 }); }
-      createLeaves(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, size: 10+Math.random()*15, speed: 1+Math.random()*3, rot: Math.random()*360 }); }
-      createConfetti(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, w: 6, h: 10, color: `hsl(${Math.random()*60+30}, 80%, 60%)`, speed: 2+Math.random()*4 }); }
-      createSparkle(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, radius: 2+Math.random()*4, alpha: Math.random() }); }
-      animate() {
-        this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-        if (this.type === 'rain') this.drawRain();
-        if (this.type === 'leaves') this.drawLeaves();
-        if (this.type === 'confetti') this.drawConfetti();
-        if (this.type === 'sparkle') this.drawSparkle();
-        requestAnimationFrame(() => this.animate());
-      }
-      drawRain() {
-        this.ctx.strokeStyle = 'rgba(180,230,255,0.5)';
-        this.ctx.lineWidth = 1.5;
-        this.particles.forEach(p => {
-          this.ctx.beginPath();
-          this.ctx.moveTo(p.x, p.y);
-          this.ctx.lineTo(p.x, p.y + p.len);
-          this.ctx.stroke();
-          p.y += p.speed;
-          if (p.y > this.canvas.height) { p.y = -20; p.x = Math.random()*this.canvas.width; }
-        });
-      }
-      drawLeaves() { /* simplified */ }
-      drawConfetti() { /* simplified */ }
-      drawSparkle() { /* simplified */ }
-    }
+this.initRenderer();
+this.initScene();
+this.initCamera();
+this.initLighting();
+this.initPost();
+this.createWorld();
+this.createCharacters();
+this.createRain();
+this.createConfetti();
+this.observeScroll();
+this.animate();
+}
 
-    // ---------- LOADING, PROGRESS, DARK MODE, FULLSCREEN ----------
-    window.addEventListener('load', ()=>{
-      gsap.to('#loadingBar', { width: '100%', duration: 1.5, ease: 'power2.inOut' });
-      gsap.to('.loading-screen', { opacity: 0, visibility: 'hidden', delay: 1.8 });
-    });
+///////////////////////////////////////////////////////////////
+initRenderer(){
+this.canvas=document.getElementById("webgl");
+this.renderer=new THREE.WebGLRenderer({canvas:this.canvas,antialias:true});
+this.renderer.setSize(window.innerWidth,window.innerHeight);
+this.renderer.shadowMap.enabled=true;
+this.renderer.physicallyCorrectLights=true;
+this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
+this.renderer.toneMappingExposure=1.2;
+}
 
-    // init scene manager
-    const story = new SceneManager();
+///////////////////////////////////////////////////////////////
+initScene(){
+this.scene=new THREE.Scene();
+this.scene.background=new THREE.Color(0x0a0f1e);
+}
 
-    // Weather effects per scene
-    new WeatherCanvas('canvas3', 'rain');
-    new WeatherCanvas('canvas4', 'rain');
-    new WeatherCanvas('canvas6', 'leaves');
-    new WeatherCanvas('canvas8', 'confetti');
-    new WeatherCanvas('canvas1', 'sparkle');
+///////////////////////////////////////////////////////////////
+initCamera(){
+this.camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);
+this.camera.position.set(0,3,8);
+this.controls=new OrbitControls(this.camera,this.renderer.domElement);
+this.controls.enableDamping=true;
+}
 
-    // progress bar
-    window.addEventListener('scroll', ()=>{
-      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - window.innerHeight;
-      const scrolled = (winScroll / height) * 100;
-      document.getElementById('progressFill').style.width = scrolled + '%';
-    });
+///////////////////////////////////////////////////////////////
+initLighting(){
+this.ambient=new THREE.AmbientLight(0x404060,0.8);
+this.scene.add(this.ambient);
 
-    // music toggle
-    let musicPlaying = false;
-    document.getElementById('musicToggle').addEventListener('click', function(){
-      if (!musicPlaying) { sound.play(); musicPlaying = true; this.innerHTML = '<i class="bi bi-music-note"></i> Afsos (on)'; }
-      else { sound.pause(); musicPlaying = false; this.innerHTML = '<i class="bi bi-music-note"></i> Afsos (off)'; }
-    });
+this.key=new THREE.DirectionalLight(0xffffff,2);
+this.key.position.set(5,10,5);
+this.key.castShadow=true;
+this.scene.add(this.key);
 
-    // dark mode
-    document.getElementById('darkModeBtn').addEventListener('click', function(){
-      document.body.classList.toggle('dark-mode');
-      this.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="bi bi-brightness-high"></i> Light' : '<i class="bi bi-moon-stars"></i> Dark';
-    });
+this.rim=new THREE.PointLight(0xff69b4,2,50);
+this.rim.position.set(0,4,-5);
+this.scene.add(this.rim);
+}
 
-    // fullscreen
-    document.getElementById('fullscreenBtn').addEventListener('click', function(){
-      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
-      else { if (document.exitFullscreen) document.exitFullscreen(); }
-    });
+///////////////////////////////////////////////////////////////
+initPost(){
+this.composer=new EffectComposer(this.renderer);
+this.composer.addPass(new RenderPass(this.scene,this.camera));
+this.bloom=new UnrealBloomPass(
+new THREE.Vector2(window.innerWidth,window.innerHeight),
+1.4,0.4,0.85);
+this.composer.addPass(this.bloom);
+}
 
-    // auto cinematic mode (auto-scroll)
-    let autoInterval;
-    document.getElementById('autoCinema').addEventListener('click', function(){
-      if (!autoInterval) {
-        autoInterval = setInterval(() => { story.next(); }, 5000);
-        this.innerHTML = '<i class="bi bi-stop-circle"></i> Stop';
-      } else { clearInterval(autoInterval); autoInterval = null; this.innerHTML = '<i class="bi bi-camera-reels"></i> Auto'; }
-    });
-  </script>
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+///////////////////////////////////////////////////////////////
+createWorld(){
+const ground=new THREE.Mesh(
+new THREE.CircleGeometry(40,64),
+new THREE.MeshStandardMaterial({color:0x1b263b})
+);
+ground.rotation.x=-Math.PI/2;
+ground.receiveShadow=true;
+this.scene.add(ground);
+}
+
+///////////////////////////////////////////////////////////////
+createCharacter(color){
+const group=new THREE.Group();
+
+const body=new THREE.Mesh(
+new THREE.CylinderGeometry(0.6,0.6,1.2,32),
+new THREE.MeshStandardMaterial({color,roughness:0.3})
+);
+body.position.y=0.6;
+body.castShadow=true;
+group.add(body);
+
+const head=new THREE.Mesh(
+new THREE.SphereGeometry(0.5,32,32),
+new THREE.MeshStandardMaterial({color:0xffe0bd})
+);
+head.position.y=1.7;
+head.castShadow=true;
+group.add(head);
+
+group.userData={walkCycle:0};
+
+return group;
+}
+
+createCharacters(){
+this.asad=this.createCharacter(0x4a90e2);
+this.sania=this.createCharacter(0xff4f81);
+
+this.asad.position.x=-2;
+this.sania.position.x=2;
+
+this.scene.add(this.asad);
+this.scene.add(this.sania);
+}
+
+///////////////////////////////////////////////////////////////
+createRain(){
+const count=2000;
+const geo=new THREE.BufferGeometry();
+const pos=new Float32Array(count*3);
+
+for(let i=0;i<count*3;i++){
+pos[i]=(Math.random()-0.5)*50;
+}
+geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+
+const mat=new THREE.PointsMaterial({color:0x66ccff,size:0.1});
+this.rain=new THREE.Points(geo,mat);
+this.rain.visible=false;
+this.scene.add(this.rain);
+}
+
+///////////////////////////////////////////////////////////////
+createConfetti(){
+const count=1000;
+const geo=new THREE.BufferGeometry();
+const pos=new Float32Array(count*3);
+for(let i=0;i<count*3;i++){
+pos[i]=(Math.random()-0.5)*20;
+}
+geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+
+const mat=new THREE.PointsMaterial({color:0xffd700,size:0.2});
+this.confetti=new THREE.Points(geo,mat);
+this.confetti.visible=false;
+this.scene.add(this.confetti);
+}
+
+///////////////////////////////////////////////////////////////
+observeScroll(){
+const sections=document.querySelectorAll(".scene-section");
+const observer=new IntersectionObserver(entries=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+const id=parseInt(entry.target.id.replace("scene",""));
+this.switchScene(id);
+}
+});
+},{threshold:0.6});
+sections.forEach(sec=>observer.observe(sec));
+}
+
+///////////////////////////////////////////////////////////////
+switchScene(id){
+this.currentScene=id;
+
+this.rain.visible=false;
+this.confetti.visible=false;
+
+if(id===3){
+this.rain.visible=true;
+}
+
+if(id===7){
+this.startWedding();
+}
+}
+
+///////////////////////////////////////////////////////////////
+startWedding(){
+
+this.confetti.visible=true;
+
+this.key.color.set(0xffd700);
+this.key.intensity=3;
+
+this.camera.position.set(0,2,5);
+
+this.asad.position.x=-0.5;
+this.sania.position.x=0.5;
+}
+
+///////////////////////////////////////////////////////////////
+updateCharacters(delta){
+const t=performance.now()*0.001;
+
+this.asad.scale.y=1+Math.sin(t)*0.02;
+this.sania.scale.y=1+Math.cos(t)*0.02;
+
+if(this.currentScene===3){
+this.rain.rotation.y+=delta*0.2;
+}
+
+if(this.currentScene===7){
+this.confetti.rotation.y+=delta*0.3;
+}
+}
+
+///////////////////////////////////////////////////////////////
+animate(){
+requestAnimationFrame(()=>this.animate());
+const delta=this.clock.getDelta();
+this.updateCharacters(delta);
+this.controls.update();
+this.composer.render();
+}
+
+}
+
+//////////////////////////////////////////////////////////////////
+new CinematicEngine();
+//////////////////////////////////////////////////////////////////
+
+</script>
 </body>
 </html>
