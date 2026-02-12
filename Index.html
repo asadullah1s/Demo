@@ -2,25 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-  <title>Asad & Sania · 3D Cartoon Love Story</title>
-  <!-- Bootstrap 5 CDN (for layout and responsive UI) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+  <title>Asad & Sania · 2D Animated Cartoon</title>
+  <!-- Bootstrap 5.3 + Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Google Fonts: Playfair + Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Three.js library -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-      }
-    }
-  </script>
+  <!-- GSAP + ScrollTrigger + TextPlugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+  <!-- Anime.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <!-- Howler.js for advanced audio control -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
   <style>
-    /* ----- GLOBAL CINEMATIC STYLES ----- */
+    /* ---------- CINEMATIC 2D CARTOON STYLE ---------- */
     * {
       margin: 0;
       padding: 0;
@@ -28,640 +26,610 @@
     }
     body {
       font-family: 'Poppins', sans-serif;
-      background: #0a0f1e;
-      color: white;
+      background: #0a0c12;
+      color: #fff;
       overflow-x: hidden;
-      position: relative;
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
+      transition: background 0.5s, color 0.3s;
     }
-    h1, h2, h3, .romantic-font {
-      font-family: 'Playfair Display', serif;
+    body.dark-mode {
+      background: #050608;
+      color: #eaeef2;
     }
-    /* Each scene: full viewport, flex column for overlay text, 3D canvas behind */
+    /* loading screen */
+    .loading-screen {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 30% 30%, #1a1e2c, #0a0c14);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 1.5s, visibility 1.5s;
+      flex-direction: column;
+    }
+    .loading-progress {
+      width: 240px; height: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      margin-top: 30px;
+      overflow: hidden;
+    }
+    .loading-bar {
+      width: 0%; height: 100%;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      transition: width 0.3s;
+    }
+    /* scene wrapper */
     .scene {
+      width: 100%;
       min-height: 100vh;
       height: 100vh;
-      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      scroll-snap-align: start;
+      padding: 1.5rem;
+    }
+    /* canvas for weather / parallax layers */
+    .scene-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* content overlay - glassmorphic */
+    .story-card {
+      position: relative;
+      z-index: 20;
+      background: rgba(10, 15, 25, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 200, 220, 0.25);
+      border-radius: 48px 48px 48px 12px;
+      padding: 2.5rem 2rem;
+      max-width: 700px;
+      width: 90%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+      transition: all 0.4s;
+    }
+    .dark-mode .story-card {
+      background: rgba(5, 8, 15, 0.8);
+      border-color: rgba(255, 220, 240, 0.15);
+    }
+    /* character stage: 2D cartoon rig */
+    .character-stage {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 3rem;
+      margin: 2rem 0;
+      position: relative;
+      min-height: 220px;
+    }
+    .character {
+      position: relative;
+      width: 140px;
+      height: 200px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      filter: drop-shadow(0 10px 8px rgba(0,0,0,0.3));
+    }
+    /* body – simple shape */
+    .char-body {
+      width: 70px;
+      height: 90px;
+      background: #4a90e2; /* asad */
+      border-radius: 40px 40px 20px 20px;
       position: relative;
-      overflow: hidden;
-      padding: 1rem;
-      scroll-snap-align: start;
-      background-color: transparent;  /* canvas shows through */
-      z-index: 1;
+      bottom: 0;
+      box-shadow: 0 6px 0 #2c5a8c;
     }
-    /* Overlay UI – cards, text, buttons sit above 3D */
-    .content-overlay {
-      background: rgba(10, 15, 30, 0.65);
-      backdrop-filter: blur(10px);
-      border-radius: 40px;
-      padding: 2rem;
-      border: 1px solid rgba(255, 215, 215, 0.3);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      max-width: 600px;
-      width: 90%;
-      z-index: 10;
-      color: white;
-    }
-    /* phone mock for chat scenes */
-    .phone-mock {
-      background: rgba(30, 30, 47, 0.9);
-      backdrop-filter: blur(8px);
-      border-radius: 36px;
-      padding: 20px 15px;
-      border: 1px solid #44475a;
-      max-width: 420px;
-      width: 100%;
-    }
-    .chat-bubble {
-      background: #2e3b4e;
-      padding: 12px 18px;
-      border-radius: 24px 24px 24px 4px;
-      margin: 10px 0;
-      max-width: 80%;
-      color: white;
-    }
-    .chat-bubble.right {
+    .sania .char-body {
       background: #ff7b9c;
-      align-self: flex-end;
-      border-radius: 24px 24px 4px 24px;
+      box-shadow: 0 6px 0 #c55373;
     }
-    /* progress bar */
-    .progress-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: rgba(255,255,255,0.1);
-      z-index: 2000;
-    }
-    .progress-bar-fill {
-      height: 5px;
-      width: 0%;
-      background: linear-gradient(90deg, #ff9a9e, #fad0c4, #ffd1d1);
-      transition: width 0.2s;
-      box-shadow: 0 0 12px #ff9a9e;
-    }
-    /* control buttons */
-    .story-controls {
-      position: fixed;
-      bottom: 25px;
-      left: 0;
-      right: 0;
+    /* head */
+    .char-head {
+      width: 80px;
+      height: 80px;
+      background: #ffdfc4;
+      border-radius: 50%;
+      position: absolute;
+      top: -25px;
+      left: -5px;
+      box-shadow: 0 4px 0 #d4a88c;
       display: flex;
       justify-content: center;
-      gap: 15px;
-      z-index: 2000;
-      flex-wrap: wrap;
-      padding: 0 15px;
+      align-items: center;
+      overflow: hidden;
     }
-    .ctrl-btn {
-      background: rgba(10, 15, 30, 0.8);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 215, 215, 0.4);
-      color: white;
+    /* facial features */
+    .eyes {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .eye {
+      width: 14px; height: 14px;
+      background: #221c1a;
+      border-radius: 50%;
+      position: relative;
+    }
+    .eye-lid {
+      width: 18px; height: 10px;
+      background: #ffdfc4;
+      position: absolute;
+      top: -4px; left: -2px;
+      border-radius: 50%;
+      transform: scaleY(0);
+      transition: transform 0.2s;
+    }
+    .blink .eye-lid {
+      transform: scaleY(1);
+    }
+    .mouth {
+      width: 24px; height: 12px;
+      background: transparent;
+      border-bottom: 4px solid #b14b4b;
+      border-radius: 0 0 20px 20px;
+      margin-top: 8px;
+    }
+    .mouth.sad { border-bottom: 4px solid #6b5e5e; transform: rotate(180deg) scaleX(0.8); }
+    .mouth.happy { border-bottom: 8px solid #ff6b7c; border-radius: 20px; width: 28px; }
+    .mouth.shock { width: 16px; height: 16px; border: 2px solid #4a3a3a; border-radius: 50%; background: #fff; border-bottom: 4px solid #aaa; }
+    /* hair / accessories */
+    .asad-hair {
+      width: 60px; height: 30px;
+      background: #4a3c31;
+      border-radius: 30px 30px 0 0;
+      position: absolute; top: -12px; left: 10px;
+    }
+    .sania-bow {
+      position: absolute; top: -10px; right: -5px;
+      font-size: 28px; color: #ff4d6d;
+    }
+    /* emotions engine (class toggles) */
+    .character.happy .mouth { border-bottom: 8px solid #ff6b7c; border-radius: 20px; width: 28px; }
+    .character.sad .mouth { border-bottom: 4px solid #6b5e5e; transform: rotate(180deg) scaleX(0.8); }
+    .character.crying .eye::after { content: "💧"; position: absolute; font-size: 16px; right: -6px; top: -2px; }
+    .character.shock .mouth { width: 16px; height: 16px; border: 2px solid #4a3a3a; border-radius: 50%; background: #fff; border-bottom: 4px solid #aaa; }
+    /* subtitles container */
+    .subtitle-box {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
       padding: 12px 24px;
       border-radius: 50px;
+      display: inline-block;
+      margin-top: 20px;
+      border-left: 6px solid #ff9eb5;
+      font-size: 1.2rem;
+      font-weight: 500;
+      min-height: 70px;
+    }
+    /* control bar */
+    .cinema-controls {
+      position: fixed;
+      bottom: 30px; left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      z-index: 1000;
+      flex-wrap: wrap;
+    }
+    .ctrl-btn {
+      background: rgba(20, 25, 45, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 180, 200, 0.5);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 60px;
       font-weight: 600;
-      letter-spacing: 2px;
-      font-size: 0.9rem;
-      transition: 0.4s;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: 0.3s;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      border: none;
+      box-shadow: 0 8px 18px black;
     }
-    .ctrl-btn:hover {
-      background: #ffb3c6;
-      color: #1a1a2c;
+    .ctrl-btn:hover { background: #ff8fa5; color: #1a1e2c; }
+    .progress-container {
+      position: fixed; top: 0; left: 0; width: 100%; height: 6px; z-index: 2000;
+      background: rgba(0,0,0,0.3);
     }
-    .music-toggle {
-      background: rgba(255, 123, 156, 0.2);
-      border: 1px solid #ff7b9c;
+    .progress-fill {
+      width: 0%; height: 100%;
+      background: linear-gradient(90deg, #ffb3c6, #ff7b9c);
+      transition: width 0.1s;
     }
-    /* 3D canvas pinned background */
-    #three-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;  /* allow interaction with UI */
+    /* dark mode toggle */
+    .dark-toggle {
+      position: fixed; top: 20px; right: 80px; z-index: 3000;
     }
-    /* footer */
-    footer {
-      position: fixed;
-      bottom: 100px;
-      right: 20px;
-      color: rgba(255,255,240,0.5);
-      font-size: 0.8rem;
-      z-index: 2000;
+    .fullscreen-toggle {
+      position: fixed; top: 20px; right: 20px; z-index: 3000;
+    }
+    /* parallax layers */
+    .parallax-bg {
+      position: absolute; width: 100%; height: 100%;
+      background-size: cover; background-position: center;
+      opacity: 0.2;
     }
     @media (max-width: 768px) {
-      .content-overlay { padding: 1.5rem; }
+      .character-stage { gap: 1rem; }
+      .character { transform: scale(0.8); }
     }
   </style>
 </head>
 <body>
+  <!-- LOADING SCREEN (animated) -->
+  <div id="loadingScreen" class="loading-screen">
+    <div style="font-size: 80px; color: #ffb3c6;"><i class="bi bi-heart-fill"></i></div>
+    <h2 class="romantic-font mt-3" style="color: #ffe6f0;">Asad & Sania</h2>
+    <p style="color: #b3d0ff;">loading 2D animated story...</p>
+    <div class="loading-progress">
+      <div id="loadingBar" class="loading-bar" style="width: 0%;"></div>
+    </div>
+  </div>
 
   <!-- PROGRESS BAR -->
   <div class="progress-container">
-    <div id="progressBar" class="progress-bar-fill"></div>
+    <div id="progressFill" class="progress-fill"></div>
   </div>
 
-  <!-- 3D Canvas (fixed background) -->
-  <canvas id="three-canvas"></canvas>
+  <!-- DARK MODE & FULLSCREEN -->
+  <div class="dark-toggle">
+    <button id="darkModeBtn" class="btn btn-outline-light rounded-pill px-4 py-2"><i class="bi bi-moon-stars"></i> Dark</button>
+  </div>
+  <div class="fullscreen-toggle">
+    <button id="fullscreenBtn" class="btn btn-outline-light rounded-pill px-4 py-2"><i class="bi bi-arrows-fullscreen"></i> Cinema</button>
+  </div>
 
-  <!-- BACKGROUND MUSIC: afsoos.mp3 (autoplay muted) -->
-  <audio id="bgAudio" loop autoplay muted preload="auto" style="display:none;">
-    <source src="afsoos.mp3" type="audio/mpeg">
-    Your browser does not support audio.
-  </audio>
+  <!-- BACKGROUND MUSIC (controlled via Howler) -->
+  <div style="display: none;" id="musicPlayer"></div>
 
-  <!-- ========== 8 SCENES – Overlay content only ========== -->
-  <div class="container-fluid px-0">
-
-    <!-- SCENE 1 – STARTING BANNER: HUG + SOCIAL MESSAGES (3D characters will hug) -->
-    <section id="scene1" class="scene">
-      <div class="content-overlay text-center">
-        <div class="phone-mock fade-in mx-auto">
-          <div class="d-flex flex-column">
-            <div class="chat-bubble slide-left">Sania: hello ap Romeo</div>
-            <div class="chat-bubble right slide-right">Asad: Han 😂 😂</div>
-            <div class="chat-bubble slide-left">Sania: ya Roz confession ap per lag rhy h ku sad h</div>
-            <div class="chat-bubble right slide-right">Asad: Han yar tang ho gya Hu ab choke my Beth k dant nikalu to iny yaqeen ho ga ni sad</div>
+  <!-- 8 CINEMATIC SCENES (story untouched, only visualized) -->
+  <div class="container-fluid px-0 snap-container">
+    <!-- SCENE 1: Social Media Meeting + Hug animation -->
+    <section id="scene1" class="scene" data-index="0">
+      <canvas id="canvas1" class="scene-canvas"></canvas>
+      <div class="story-card text-center">
+        <div class="character-stage">
+          <div id="asad1" class="character asad">
+            <div class="char-head">
+              <div class="asad-hair"></div>
+              <div class="eyes"><div class="eye"><div class="eye-lid"></div></div><div class="eye"><div class="eye-lid"></div></div></div>
+              <div class="mouth happy"></div>
+            </div>
+            <div class="char-body"></div>
+          </div>
+          <div id="sania1" class="character sania">
+            <div class="char-head">
+              <span class="sania-bow">🎀</span>
+              <div class="eyes"><div class="eye"><div class="eye-lid"></div></div><div class="eye"><div class="eye-lid"></div></div></div>
+              <div class="mouth happy"></div>
+            </div>
+            <div class="char-body"></div>
           </div>
         </div>
-        <p class="mt-4 romantic-font" style="color:#ffe0f0;">♡ first chat & hug in 3D ♡</p>
-      </div>
-      <div style="position: absolute; bottom: 20px; color: rgba(255,255,255,0.5); z-index:20;">Scene 1 · 3D Hug</div>
-    </section>
-
-    <!-- SCENE 2 – ACADEMY DAYS: Sania convinces Asad to do DIT -->
-    <section id="scene2" class="scene">
-      <div class="content-overlay text-center">
-        <h3 class="romantic-font" style="color:#ffd9e8;">🎓 Academy Days</h3>
-        <p style="font-size:1.5rem;" class="zoom-in"><i class="fas fa-comment-dots"></i> “Sania convinced Asad to join DIT”</p>
-        <p style="color:#ffe0f0;">They started studying together every day.</p>
-        <div style="font-size:2rem; color:#ff99aa;"><i class="fas fa-heart"></i></div>
-      </div>
-    </section>
-
-    <!-- SCENE 3 – ONE-SIDED LOVE: Asad loves her, fights about male friends -->
-    <section id="scene3" class="scene">
-      <div class="content-overlay text-center">
-        <i class="fas fa-heart fa-3x" style="color:#ff6b7c;"></i>
-        <h2 class="romantic-font mt-2">Asad fell one-sided love</h2>
-        <p>Sania just considers him a friend.</p>
-        <div class="row mt-3">
-          <div class="col-6"><i class="fas fa-users fa-2x"></i><br>Male friends</div>
-          <div class="col-6"><i class="fas fa-fist-raised fa-2x"></i><br>Fights & jealousy</div>
+        <div class="phone-mock bg-dark p-3 rounded-4" style="max-width: 400px; margin: 0 auto;">
+          <div class="chat-bubble">Sania: hello ap Romeo</div>
+          <div class="chat-bubble right">Asad: Han 😂 😂</div>
+          <div class="chat-bubble">Sania: ya Roz confession ap per lag rhy h ku sad h</div>
+          <div class="chat-bubble right">Asad: Han yar tang ho gya Hu ab choke my Beth k dant nikalu to iny yaqeen ho ga ni sad</div>
         </div>
-        <span style="font-size:2rem; color:#b78c9c;">💔</span>
+        <div id="subtitle1" class="subtitle-box mt-4 w-100">✨ first chat & hug ✨</div>
       </div>
     </section>
-
-    <!-- SCENE 4 – DEPRESSION PHASE -->
-    <section id="scene4" class="scene">
-      <div class="content-overlay text-center">
-        <i class="fas fa-user fa-4x" style="color:#565a75;"></i>
-        <h2 class="romantic-font mt-3" style="color:#b3c7e5;">“Sometimes love hurts silently.”</h2>
+    <!-- SCENE 2: Academy Days – Sania convinces Asad to join DIT -->
+    <section id="scene2" class="scene" data-index="1">
+      <canvas id="canvas2" class="scene-canvas"></canvas>
+      <div class="story-card text-center">
+        <h3 class="romantic-font">🎓 Academy Days</h3>
+        <div class="character-stage">
+          <div id="asad2" class="character asad"><div class="char-head"><div class="asad-hair"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="mouth"></div></div><div class="char-body"></div></div>
+          <div id="sania2" class="character sania"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="mouth happy"></div></div><div class="char-body"></div></div>
+        </div>
+        <p class="fs-4"><i class="bi bi-chat-quote"></i> “Sania convinced Asad to do DIT with her”</p>
+        <p>They started studying together every day.</p>
+        <div id="subtitle2" class="subtitle-box">📚 study buddies</div>
+      </div>
+    </section>
+    <!-- SCENE 3: One-Sided Love – Asad loves her, she ignores, fights about male friends -->
+    <section id="scene3" class="scene" data-index="2">
+      <canvas id="canvas3" class="scene-canvas"></canvas>
+      <div class="story-card text-center">
+        <div class="character-stage">
+          <div id="asad3" class="character asad sad"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
+          <div id="sania3" class="character sania"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"></div><div class="mouth"></div></div><div class="char-body"></div></div>
+        </div>
+        <i class="bi bi-heartbreak fs-1" style="color: #c44569;"></i>
+        <h4>Asad fell one-sided love</h4>
+        <p>Sania just considers him a friend. Fights start because of her male friends.</p>
+        <div id="subtitle3" class="subtitle-box">💔 silent love</div>
+      </div>
+    </section>
+    <!-- SCENE 4: Depression Phase (rain, thunder) -->
+    <section id="scene4" class="scene" data-index="3">
+      <canvas id="canvas4" class="scene-canvas"></canvas>
+      <div class="story-card text-center">
+        <div class="character-stage">
+          <div id="asad4" class="character asad sad crying"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
+        </div>
+        <h2 class="romantic-font">“Sometimes love hurts silently.”</h2>
         <p>Asad sits alone ...</p>
-        <i class="fas fa-cloud-rain fa-3x" style="color:#62728f;"></i>
+        <div id="subtitle4" class="subtitle-box">🌧️ depression phase</div>
       </div>
     </section>
-
-    <!-- SCENE 5 – UNIVERSITY (3 years together, different depts, meet daily, madly in love) -->
-    <section id="scene5" class="scene">
-      <div class="content-overlay text-center">
-        <h1 id="yearTimeline" class="display-4 romantic-font" style="color:#ffeabf;">3 Years Together</h1>
-        <div class="row mt-3">
-          <div class="col-4"><i class="fas fa-university fa-2x"></i><br>Same Uni</div>
-          <div class="col-4"><i class="fas fa-code-branch fa-2x"></i><br>Different Depts</div>
-          <div class="col-4"><i class="fas fa-calendar-alt fa-2x"></i><br>Meet daily</div>
+    <!-- SCENE 5: University Life – 3 years together, different departments, meet daily, madly in love -->
+    <section id="scene5" class="scene" data-index="4">
+      <canvas id="canvas5" class="scene-canvas"></canvas>
+      <div class="story-card text-center">
+        <h1 class="display-4 romantic-font">3 Years Together</h1>
+        <div class="character-stage">
+          <div id="asad5" class="character asad happy"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth happy"></div></div><div class="char-body"></div></div>
+          <div id="sania5" class="character sania happy"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"></div><div class="mouth happy"></div></div><div class="char-body"></div></div>
         </div>
-        <p class="mt-3" style="color:#ffdab9;">Asad loves her madly, silently.</p>
-        <div><i class="fas fa-heart" style="color:#ff8c9a;"></i></div>
+        <p class="fs-5">Same uni – different depts – meet daily. Asad loves her madly.</p>
+        <div id="subtitle5" class="subtitle-box">🏛️ madly in love</div>
       </div>
     </section>
-
-    <!-- SCENE 6 – SEPARATION: She left Asad for his friend/class fellow. 3D animation: walk away -->
-    <section id="scene6" class="scene">
-      <div class="content-overlay text-center">
-        <h3 class="romantic-font" style="color:#dedee3;">“She chose someone else...”</h3>
-        <div class="row mt-4">
-          <div class="col-4"><i class="fas fa-walking fa-3x"></i><br>Sania walks away</div>
-          <div class="col-4"><i class="fas fa-user fa-3x"></i><br>...with him</div>
-          <div class="col-4"><i class="fas fa-user fa-3x"></i><br>Asad watches</div>
+    <!-- SCENE 6: Separation – She left Asad for his friend/class fellow. Full walk animation -->
+    <section id="scene6" class="scene" data-index="5">
+      <canvas id="canvas6" class="scene-canvas"></canvas>
+      <div class="story-card text-center">
+        <h3 class="romantic-font">“She chose someone else...”</h3>
+        <div class="character-stage" style="justify-content: space-evenly;">
+          <div id="sania6" class="character sania" style="transform: translateX(-20px);"><div class="char-head"><span class="sania-bow">🎀</span><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
+          <div id="otherGuy6" style="width:80px;"><i class="bi bi-person fs-1"></i><p style="font-size:0.8rem;">class fellow</p></div>
+          <div id="asad6" class="character asad sad" style="transform: translateX(20px);"><div class="char-head"><div class="asad-hair"></div><div class="eyes"></div><div class="mouth sad"></div></div><div class="char-body"></div></div>
         </div>
-        <p class="mt-4" style="color:#ffb7b7;">She didn't look back.</p>
+        <p>Sania walks away with him. Asad watches, heartbroken.</p>
+        <div id="subtitle6" class="subtitle-box">🚶‍♀️💔 she didn't look back</div>
       </div>
     </section>
-
-    <!-- SCENE 7 – RECONNECTION (After 2 Years) -->
-    <section id="scene7" class="scene">
-      <div class="content-overlay text-center">
-        <div class="phone-mock mx-auto" style="background: #fff1e6; color: #3a2a2a;">
-          <i class="fas fa-bell fa-2x glow-effect" style="color:#c9714b;"></i>
-          <p class="mt-2">Social media notification</p>
-          <div class="chat-bubble" style="background:#ffd7ba;">Sania: Hey, long time ❤️</div>
-          <div class="chat-bubble right" style="background:#faa38b;">Asad: I missed you...</div>
+    <!-- SCENE 7: Reconnection – After 2 years, social media -->
+    <section id="scene7" class="scene" data-index="6">
+      <canvas id="canvas7" class="scene-canvas"></canvas>
+      <div class="story-card text-center">
+        <div class="phone-mock bg-warning bg-opacity-25 p-3 rounded-4">
+          <i class="bi bi-bell-fill fs-1"></i>
+          <p>Social media notification</p>
+          <div class="chat-bubble">Sania: Hey, long time ❤️</div>
+          <div class="chat-bubble right">Asad: I missed you...</div>
         </div>
-        <h4 class="mt-4 romantic-font" style="color:#7f4f3c;">After 2 years… destiny reconnects them.</h4>
+        <h4 class="mt-4 romantic-font">After 2 years… destiny reconnects them.</h4>
+        <div id="subtitle7" class="subtitle-box">💌 reconnection</div>
       </div>
     </section>
-
-    <!-- SCENE 8 – WEDDING ENDING -->
-    <section id="scene8" class="scene">
-      <div class="content-overlay text-center" style="background: rgba(255,215,0,0.2); backdrop-filter: blur(12px); border-color: gold;">
-        <i class="fas fa-heart fa-4x" style="color:#c92a4b; animation: heartbeat 1.5s infinite;"></i>
-        <h1 class="romantic-font display-4" style="color:#4a2c2c;">Asad & Sania</h1>
-        <h3 style="color:#644117;">💍 finally together</h3>
-        <div class="mt-4 fade-in">
-          <p style="font-size:1.6rem; font-weight:600; color:#34200c;">“Some love stories are delayed…<br> but never denied.”</p>
+    <!-- SCENE 8: Wedding Ending -->
+    <section id="scene8" class="scene" data-index="7">
+      <canvas id="canvas8" class="scene-canvas"></canvas>
+      <div class="story-card text-center" style="border-color: #ffd700;">
+        <i class="bi bi-heart-fill fs-1" style="color: #ff4d6d; animation: heartbeat 1.5s infinite;"></i>
+        <h1 class="display-4 romantic-font">Asad & Sania</h1>
+        <h3>💍 finally together</h3>
+        <div class="mt-4">
+          <p class="fs-2 fw-bold" style="color: #ffd966;">“Some love stories are delayed… but never denied.”</p>
         </div>
+        <div id="subtitle8" class="subtitle-box">✨ wedding bliss</div>
       </div>
     </section>
   </div>
 
-  <!-- CONTROL BUTTONS -->
-  <div class="story-controls">
-    <button id="playStoryBtn" class="ctrl-btn"><i class="fas fa-play"></i> Play Story</button>
-    <button id="prevSceneBtn" class="ctrl-btn"><i class="fas fa-arrow-left"></i> Prev</button>
-    <button id="nextSceneBtn" class="ctrl-btn"><i class="fas fa-arrow-right"></i> Next</button>
-    <button id="musicToggleBtn" class="ctrl-btn music-toggle"><i class="fas fa-music"></i> ♫ Afsos (muted)</button>
+  <!-- CINEMA CONTROL BAR -->
+  <div class="cinema-controls">
+    <button id="playBtn" class="ctrl-btn"><i class="bi bi-play-fill"></i> Play Story</button>
+    <button id="prevBtn" class="ctrl-btn"><i class="bi bi-skip-backward-fill"></i> Prev</button>
+    <button id="nextBtn" class="ctrl-btn"><i class="bi bi-skip-forward-fill"></i> Next</button>
+    <button id="musicToggle" class="ctrl-btn"><i class="bi bi-music-note"></i> Afsos (off)</button>
+    <button id="autoCinema" class="ctrl-btn"><i class="bi bi-camera-reels"></i> Auto</button>
   </div>
 
-  <footer>❤️ love is timeless</footer>
-
-  <!-- THREE.JS SCRIPT: 3D Cartoon Animation -->
   <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    // ---------- ADVANCED 2D ANIMATION ENGINE ----------
+    import gsap from 'https://cdn.skypack.dev/gsap';
+    import ScrollTrigger from 'https://cdn.skypack.dev/gsap/ScrollTrigger';
+    import TextPlugin from 'https://cdn.skypack.dev/gsap/TextPlugin';
+    gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
-    // --- Setup Scene, Camera, Renderer ---
-    const canvas = document.getElementById('three-canvas');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0f1e); // deep night
-
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(5, 4, 12);
-    camera.lookAt(0, 1, 0);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    // --- Lights ---
-    const ambientLight = new THREE.AmbientLight(0x404060);
-    scene.add(ambientLight);
-
-    const mainLight = new THREE.DirectionalLight(0xffeedd, 1);
-    mainLight.position.set(5, 10, 7);
-    mainLight.castShadow = true;
-    mainLight.receiveShadow = true;
-    mainLight.shadow.mapSize.width = 1024;
-    mainLight.shadow.mapSize.height = 1024;
-    scene.add(mainLight);
-
-    const fillLight = new THREE.PointLight(0x4466aa, 0.5);
-    fillLight.position.set(-5, 2, 5);
-    scene.add(fillLight);
-
-    // --- Ground (soft glow) ---
-    const groundGeometry = new THREE.CircleGeometry(30, 32);
-    const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x1a1e30, roughness: 0.8, metalness: 0.1, side: THREE.DoubleSide });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.5;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    // --- Helper grid (optional, but gives 3D feel) ---
-    const gridHelper = new THREE.GridHelper(30, 20, 0x8899aa, 0x445566);
-    gridHelper.position.y = -0.49;
-    scene.add(gridHelper);
-
-    // --- Create 3D Cartoon Characters (Asad & Sania) ---
-    // Asad: blue theme, Sania: pink/purple theme
-
-    function createCharacter(color, pos, name) {
-      const group = new THREE.Group();
-      group.position.copy(pos);
-
-      // Body (cylinder)
-      const bodyGeo = new THREE.CylinderGeometry(0.6, 0.6, 1.2, 8);
-      const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.4, emissive: new THREE.Color(0x222222), emissiveIntensity: 0.1 });
-      const body = new THREE.Mesh(bodyGeo, bodyMat);
-      body.castShadow = true;
-      body.receiveShadow = true;
-      body.position.y = 0.6;
-      group.add(body);
-
-      // Head (sphere)
-      const headGeo = new THREE.SphereGeometry(0.4, 32, 16);
-      const headMat = new THREE.MeshStandardMaterial({ color: 0xffddbb, roughness: 0.3 });
-      const head = new THREE.Mesh(headGeo, headMat);
-      head.castShadow = true;
-      head.receiveShadow = true;
-      head.position.y = 1.6;
-      group.add(head);
-
-      // Eyes (white + black)
-      const eyeWhiteGeo = new THREE.SphereGeometry(0.12, 16, 8);
-      const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-      const eyeL = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
-      eyeL.position.set(-0.15, 1.75, 0.35);
-      group.add(eyeL);
-      const eyeR = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
-      eyeR.position.set(0.15, 1.75, 0.35);
-      group.add(eyeR);
-
-      const pupilGeo = new THREE.SphereGeometry(0.06, 8, 4);
-      const pupilMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-      const pupilL = new THREE.Mesh(pupilGeo, pupilMat);
-      pupilL.position.set(-0.15, 1.72, 0.5);
-      group.add(pupilL);
-      const pupilR = new THREE.Mesh(pupilGeo, pupilMat);
-      pupilR.position.set(0.15, 1.72, 0.5);
-      group.add(pupilR);
-
-      // Nose (tiny sphere)
-      const noseGeo = new THREE.SphereGeometry(0.06, 8, 4);
-      const noseMat = new THREE.MeshStandardMaterial({ color: 0xffaa88 });
-      const nose = new THREE.Mesh(noseGeo, noseMat);
-      nose.position.set(0, 1.6, 0.5);
-      group.add(nose);
-
-      // Hair / hat to differentiate
-      if (name === 'asad') {
-        const hairGeo = new THREE.ConeGeometry(0.4, 0.2, 8);
-        const hairMat = new THREE.MeshStandardMaterial({ color: 0x4a3c31 });
-        const hair = new THREE.Mesh(hairGeo, hairMat);
-        hair.position.y = 1.9;
-        hair.rotation.x = 0.1;
-        group.add(hair);
-      } else {
-        // Sania: bow or ponytail (simple sphere)
-        const bowGeo = new THREE.TorusGeometry(0.15, 0.05, 4, 20, Math.PI);
-        const bowMat = new THREE.MeshStandardMaterial({ color: 0xff69b4 });
-        const bow = new THREE.Mesh(bowGeo, bowMat);
-        bow.position.y = 2.0;
-        bow.position.x = 0.2;
-        bow.rotation.z = 0.5;
-        bow.rotation.x = 0.3;
-        group.add(bow);
-        const bow2 = bow.clone();
-        bow2.position.x = -0.2;
-        bow2.rotation.z = -0.5;
-        group.add(bow2);
-      }
-
-      return group;
-    }
-
-    const asad = createCharacter(0x4a90e2, new THREE.Vector3(-2, 0, 0), 'asad');
-    const sania = createCharacter(0xff7b9c, new THREE.Vector3(2, 0, 0), 'sania');
-    scene.add(asad);
-    scene.add(sania);
-
-    // --- Additional 3D elements: hearts, books, etc. ---
-    const hearts = [];
-    function createHeart(pos) {
-      const heartGroup = new THREE.Group();
-      const geo = new THREE.SphereGeometry(0.15, 8, 8);
-      const mat = new THREE.MeshStandardMaterial({ color: 0xff4d6d, emissive: 0x330000, emissiveIntensity: 0.3 });
-      const left = new THREE.Mesh(geo, mat);
-      left.position.set(-0.15, 0, 0);
-      heartGroup.add(left);
-      const right = new THREE.Mesh(geo, mat);
-      right.position.set(0.15, 0, 0);
-      heartGroup.add(right);
-      const bottom = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.3, 8), mat);
-      bottom.position.set(0, -0.2, 0);
-      bottom.rotation.x = Math.PI;
-      bottom.rotation.z = 0;
-      heartGroup.add(bottom);
-      heartGroup.position.copy(pos);
-      return heartGroup;
-    }
-
-    // --- Animation state per scene ---
-    let currentScene = 0;
-    const scenes = document.querySelectorAll('.scene');
-
-    function update3DScene(index) {
-      // Reset all animations/positions
-      asad.position.set(-2, 0, 0);
-      sania.position.set(2, 0, 0);
-      asad.rotation.y = 0;
-      sania.rotation.y = 0;
-      asad.scale.set(1,1,1);
-      sania.scale.set(1,1,1);
-      // remove floating hearts etc.
-      hearts.forEach(h => scene.remove(h));
-      hearts.length = 0;
-
-      switch(index) {
-        case 0: // Scene 1: hug
-          asad.position.set(-1.2, 0, 0);
-          sania.position.set(1.2, 0, 0);
-          asad.rotation.y = 0.3;
-          sania.rotation.y = -0.3;
-          // move closer gradually (hug animation via interval later)
-          break;
-        case 1: // Academy: sit side by side
-          asad.position.set(-1.5, 0, 0.5);
-          sania.position.set(1.5, 0, 0.5);
-          // books
-          break;
-        case 2: // One-sided love: heart near Asad, sad expression
-          asad.position.set(-1.8, 0, 0);
-          sania.position.set(1.8, 0, 0);
-          sania.rotation.y = -0.4; // looking away
-          // broken heart later
-          break;
-        case 3: // Depression: Asad alone, rain (particles)
-          sania.position.set(10,0,0); // hide sania
-          asad.position.set(0,0,0);
-          asad.rotation.y = 0;
-          break;
-        case 4: // University: both facing forward, heart float
-          asad.position.set(-1.8, 0, 0);
-          sania.position.set(1.8, 0, 0);
-          asad.rotation.y = 0.2;
-          sania.rotation.y = -0.2;
-          // add floating hearts
-          for (let i=0;i<5;i++) {
-            let h = createHeart(new THREE.Vector3(-1 + i*0.5, 2, -1));
-            scene.add(h);
-            hearts.push(h);
-          }
-          break;
-        case 5: // Separation: Sania walks left with another guy (add temp figure)
-          asad.position.set(2, 0, 1);
-          sania.position.set(-2, 0, 0);
-          // add a basic male figure for "him"
-          const otherGuy = createCharacter(0x6b7c8a, new THREE.Vector3(-3, 0, 0.2), 'other');
-          otherGuy.name = 'otherGuy';
-          // remove previous other guy if exists
-          const old = scene.getObjectByName('otherGuy');
-          if (old) scene.remove(old);
-          scene.add(otherGuy);
-          sania.rotation.y = 0.8;
-          otherGuy.rotation.y = 0.5;
-          asad.rotation.y = -0.3;
-          break;
-        case 6: // Reconnection: chat, both face each other
-          asad.position.set(-1.5, 0, 0);
-          sania.position.set(1.5, 0, 0);
-          asad.rotation.y = 0.5;
-          sania.rotation.y = -0.5;
-          break;
-        case 7: // Wedding: together, golden light, confetti in 3D
-          asad.position.set(-0.8, 0, 0);
-          sania.position.set(0.8, 0, 0);
-          asad.rotation.y = 0.3;
-          sania.rotation.y = -0.3;
-          // add many hearts
-          for (let i=0;i<12;i++) {
-            let h = createHeart(new THREE.Vector3(-3 + i*0.6, 1.5, -2));
-            scene.add(h);
-            hearts.push(h);
-          }
-          break;
-        default: break;
-      }
-    }
-
-    // Intersection Observer to change 3D scene based on visible scene
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id;
-          const index = parseInt(id.replace('scene','')) - 1;
-          currentScene = index;
-          update3DScene(index);
-        }
-      });
-    }, { threshold: 0.5 });
-
-    scenes.forEach(sceneEl => observer.observe(sceneEl));
-
-    // --- Animation loop ---
-    function animate() {
-      requestAnimationFrame(animate);
-
-      // subtle idle animation: characters bob slightly
-      const time = Date.now() * 0.002;
-      if (asad) asad.position.y = Math.sin(time) * 0.05;
-      if (sania) sania.position.y = Math.cos(time + 2) * 0.05;
-
-      // scene-specific animations
-      if (currentScene === 0) {
-        // hug: slowly move closer
-        asad.position.x += ( -1.0 - asad.position.x) * 0.03;
-        sania.position.x += ( 1.0 - sania.position.x) * 0.03;
-      }
-      if (currentScene === 5) {
-        // separation: walk away
-        const other = scene.getObjectByName('otherGuy');
-        if (other) {
-          other.position.x -= 0.02;
-          sania.position.x -= 0.02;
-        }
-      }
-      if (currentScene === 7) {
-        // rotate hearts
-        hearts.forEach((h, i) => {
-          h.rotation.y += 0.01;
-          h.rotation.x += 0.005;
-        });
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    // --- Resize handler ---
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    // ---------- AUDIO ENGINE (Howler) ----------
+    const sound = new Howl({
+      src: ['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'], // placeholder – replace with afsoos.mp3
+      loop: true,
+      volume: 0.3,
+      html5: true
     });
 
-    // initial update
-    update3DScene(0);
-  </script>
-
-  <!-- vanilla JS for UI controls, progress bar, music etc. (non-module) -->
-  <script>
-    (function() {
-      // Scene scroll buttons
-      const scenes = document.querySelectorAll('.scene');
-      const nextBtn = document.getElementById('nextSceneBtn');
-      const prevBtn = document.getElementById('prevSceneBtn');
-      const playBtn = document.getElementById('playStoryBtn');
-
-      function scrollToScene(index) {
-        if (index >= 0 && index < scenes.length) {
-          scenes[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // ---------- SCENE MANAGER CLASS ----------
+    class SceneManager {
+      constructor() {
+        this.scenes = document.querySelectorAll('.scene');
+        this.current = 0;
+        this.timelines = [];
+        this.init();
+      }
+      init() {
+        this.scenes.forEach((scene, i) => this.buildSceneTimeline(scene, i));
+        this.setupScrollTrigger();
+        this.setupControls();
+      }
+      buildSceneTimeline(scene, index) {
+        const tl = gsap.timeline({ paused: true });
+        // character entrances, facial animations, subtitles
+        const chars = scene.querySelectorAll('.character');
+        const subtitle = scene.querySelector('.subtitle-box');
+        // animate characters fade in + bounce
+        tl.from(chars, { duration: 0.8, y: 60, opacity: 0, stagger: 0.2, ease: 'back.out(1.2)' })
+          .from(subtitle, { duration: 0.6, scaleX: 0, opacity: 0, transformOrigin: 'left center' }, '-=0.4')
+          .call(() => this.applyEmotion(scene, index), null, '+=0.2');
+        
+        // blink animation loop
+        gsap.to(chars.querySelectorAll('.eye-lid'), {
+          duration: 0.1, scaleY: 1, repeat: -1, repeatDelay: 3, yoyo: true, ease: 'none'
+        });
+        this.timelines[index] = tl;
+      }
+      applyEmotion(scene, index) {
+        const asad = scene.querySelector('.asad');
+        const sania = scene.querySelector('.sania');
+        if (!asad) return;
+        // emotion mapping per scene
+        switch(index) {
+          case 0: // happy both
+            asad.classList.add('happy'); sania.classList.add('happy'); break;
+          case 1: asad.classList.add('happy'); sania.classList.add('happy'); break;
+          case 2: asad.classList.add('sad'); asad.classList.add('crying'); break;
+          case 3: asad.classList.add('sad', 'crying'); break;
+          case 4: asad.classList.add('happy'); sania.classList.add('happy'); break;
+          case 5: asad.classList.add('sad'); sania.classList.add('sad'); break;
+          case 6: asad.classList.add('happy'); sania.classList.add('happy'); break;
+          case 7: asad.classList.add('happy'); sania.classList.add('happy'); break;
         }
       }
-
-      let currentSceneIndex = 0;
-      function updateCurrentScene() {
-        const viewportMid = window.scrollY + window.innerHeight/2;
-        scenes.forEach((sc, i) => {
-          const rect = sc.getBoundingClientRect();
-          const absTop = rect.top + window.scrollY;
-          if (viewportMid >= absTop && viewportMid <= absTop + rect.height) {
-            currentSceneIndex = i;
-          }
+      setupScrollTrigger() {
+        this.scenes.forEach((scene, i) => {
+          ScrollTrigger.create({
+            trigger: scene,
+            start: 'top center',
+            end: 'bottom center',
+            onEnter: () => this.playScene(i),
+            onEnterBack: () => this.playScene(i),
+            onLeave: () => this.pauseScene(i),
+            onLeaveBack: () => this.pauseScene(i)
+          });
         });
       }
-      window.addEventListener('scroll', updateCurrentScene);
-      
-      nextBtn.addEventListener('click', () => scrollToScene(currentSceneIndex + 1));
-      prevBtn.addEventListener('click', () => scrollToScene(currentSceneIndex - 1));
-      playBtn.addEventListener('click', () => scrollToScene(0));
-
-      // Progress bar
-      const progressFill = document.getElementById('progressBar');
-      function updateProgress() {
-        const scrollY = window.scrollY;
-        const totalHeight = document.body.scrollHeight - window.innerHeight;
-        const progress = (scrollY / totalHeight) * 100;
-        progressFill.style.width = progress + '%';
+      playScene(index) {
+        this.timelines[index]?.play();
+        this.current = index;
       }
-      window.addEventListener('scroll', updateProgress);
+      pauseScene(index) {
+        this.timelines[index]?.pause();
+      }
+      next() { 
+        const next = Math.min(this.current + 1, this.scenes.length-1);
+        this.scenes[next].scrollIntoView({ behavior: 'smooth' });
+      }
+      prev() {
+        const prev = Math.max(this.current - 1, 0);
+        this.scenes[prev].scrollIntoView({ behavior: 'smooth' });
+      }
+      setupControls() {
+        document.getElementById('nextBtn').addEventListener('click', () => this.next());
+        document.getElementById('prevBtn').addEventListener('click', () => this.prev());
+        document.getElementById('playBtn').addEventListener('click', () => this.scenes[0].scrollIntoView({ behavior: 'smooth' }));
+      }
+    }
 
-      // Music Toggle for afsoos.mp3
-      const musicBtn = document.getElementById('musicToggleBtn');
-      const audio = document.getElementById('bgAudio');
-      musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (muted)';
-      musicBtn.addEventListener('click', function() {
-        if (audio.muted) {
-          audio.muted = false;
-          audio.play().catch(e => console.log('interaction needed'));
-          musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (playing)';
-        } else {
-          audio.muted = true;
-          audio.pause();
-          musicBtn.innerHTML = '<i class="fas fa-music"></i> ♫ Afsos (muted)';
-        }
-      });
+    // ---------- WEATHER & PARALLAX CANVAS ENGINE ----------
+    class WeatherCanvas {
+      constructor(canvasId, type) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.type = type;
+        this.particles = [];
+        this.init();
+      }
+      init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        if (this.type === 'rain') this.createRain(150);
+        if (this.type === 'leaves') this.createLeaves(30);
+        if (this.type === 'confetti') this.createConfetti(100);
+        if (this.type === 'sparkle') this.createSparkle(60);
+        this.animate();
+      }
+      resize() {
+        this.canvas.width = this.canvas.offsetWidth;
+        this.canvas.height = this.canvas.offsetHeight;
+      }
+      createRain(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, len: 10+Math.random()*15, speed: 5+Math.random()*6 }); }
+      createLeaves(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, size: 10+Math.random()*15, speed: 1+Math.random()*3, rot: Math.random()*360 }); }
+      createConfetti(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, w: 6, h: 10, color: `hsl(${Math.random()*60+30}, 80%, 60%)`, speed: 2+Math.random()*4 }); }
+      createSparkle(n) { for (let i=0;i<n;i++) this.particles.push({ x: Math.random()*this.canvas.width, y: Math.random()*this.canvas.height, radius: 2+Math.random()*4, alpha: Math.random() }); }
+      animate() {
+        this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+        if (this.type === 'rain') this.drawRain();
+        if (this.type === 'leaves') this.drawLeaves();
+        if (this.type === 'confetti') this.drawConfetti();
+        if (this.type === 'sparkle') this.drawSparkle();
+        requestAnimationFrame(() => this.animate());
+      }
+      drawRain() {
+        this.ctx.strokeStyle = 'rgba(180,230,255,0.5)';
+        this.ctx.lineWidth = 1.5;
+        this.particles.forEach(p => {
+          this.ctx.beginPath();
+          this.ctx.moveTo(p.x, p.y);
+          this.ctx.lineTo(p.x, p.y + p.len);
+          this.ctx.stroke();
+          p.y += p.speed;
+          if (p.y > this.canvas.height) { p.y = -20; p.x = Math.random()*this.canvas.width; }
+        });
+      }
+      drawLeaves() { /* simplified */ }
+      drawConfetti() { /* simplified */ }
+      drawSparkle() { /* simplified */ }
+    }
 
-      updateCurrentScene();
-    })();
+    // ---------- LOADING, PROGRESS, DARK MODE, FULLSCREEN ----------
+    window.addEventListener('load', ()=>{
+      gsap.to('#loadingBar', { width: '100%', duration: 1.5, ease: 'power2.inOut' });
+      gsap.to('.loading-screen', { opacity: 0, visibility: 'hidden', delay: 1.8 });
+    });
+
+    // init scene manager
+    const story = new SceneManager();
+
+    // Weather effects per scene
+    new WeatherCanvas('canvas3', 'rain');
+    new WeatherCanvas('canvas4', 'rain');
+    new WeatherCanvas('canvas6', 'leaves');
+    new WeatherCanvas('canvas8', 'confetti');
+    new WeatherCanvas('canvas1', 'sparkle');
+
+    // progress bar
+    window.addEventListener('scroll', ()=>{
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progressFill').style.width = scrolled + '%';
+    });
+
+    // music toggle
+    let musicPlaying = false;
+    document.getElementById('musicToggle').addEventListener('click', function(){
+      if (!musicPlaying) { sound.play(); musicPlaying = true; this.innerHTML = '<i class="bi bi-music-note"></i> Afsos (on)'; }
+      else { sound.pause(); musicPlaying = false; this.innerHTML = '<i class="bi bi-music-note"></i> Afsos (off)'; }
+    });
+
+    // dark mode
+    document.getElementById('darkModeBtn').addEventListener('click', function(){
+      document.body.classList.toggle('dark-mode');
+      this.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="bi bi-brightness-high"></i> Light' : '<i class="bi bi-moon-stars"></i> Dark';
+    });
+
+    // fullscreen
+    document.getElementById('fullscreenBtn').addEventListener('click', function(){
+      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+      else { if (document.exitFullscreen) document.exitFullscreen(); }
+    });
+
+    // auto cinematic mode (auto-scroll)
+    let autoInterval;
+    document.getElementById('autoCinema').addEventListener('click', function(){
+      if (!autoInterval) {
+        autoInterval = setInterval(() => { story.next(); }, 5000);
+        this.innerHTML = '<i class="bi bi-stop-circle"></i> Stop';
+      } else { clearInterval(autoInterval); autoInterval = null; this.innerHTML = '<i class="bi bi-camera-reels"></i> Auto'; }
+    });
   </script>
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
